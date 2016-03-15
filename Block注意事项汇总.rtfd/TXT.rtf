@@ -1,0 +1,1514 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf340
+{\fonttbl\f0\fnil\fcharset134 STKaiti-SC-Regular;\f1\fnil\fcharset0 Consolas;\f2\fnil\fcharset134 PingFangSC-Regular;
+\f3\fnil\fcharset0 Consolas-Bold;\f4\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red100\green56\blue32;\red196\green26\blue22;\red170\green13\blue145;
+\red63\green110\blue116;\red46\green13\blue110;\red38\green71\blue75;\red28\green0\blue207;\red0\green116\blue0;
+\red0\green128\blue0;\red0\green0\blue255;\red163\green21\blue21;\red43\green131\blue159;}
+{\info
+{\title block\uc0\u27880 \u24847 \u20107 \u39033 \u24635 \u32467 }
+{\doccomm \uc0\u21016 \u23041 \u25391 \u33258 \u25105 \u24635 \u32467 \u65292 \u22914 \u26377 \u38382 \u39064 \u35831 \u32852 \u31995 \u26412 \u20154 \u65306 liuxing8807@126.com}
+{\author \uc0\u21016 \u23041 \u25391 }}\paperw11900\paperh16840\margl1440\margr1440\vieww25260\viewh12680\viewkind0
+\deftab720
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\'b2\'ce\'bf\'bc\'c1\'b4\'bd\'d3\'a3\'ba\
+Apple\'b9\'d9\'cd\'f8\'a3\'ba
+\f1\fs22 \
+{\field{\*\fldinst{HYPERLINK "http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithBlocks/WorkingwithBlocks.html"}}{\fldrslt http://developer.apple.com/library/ios/#documentation/cocoa/conceptual/ProgrammingWithObjectiveC/WorkingwithBlocks/WorkingwithBlocks.html}}\
+\
+
+\f0\fs28 GitHub\'c9\'cf\'bd\'cc\'b3\'cc
+\f1\fs22 \
+{\field{\*\fldinst{HYPERLINK "https://github.com/objc-zen/objc-zen-book#retain-cycles-on-self"}}{\fldrslt https://github.com/objc-zen/objc-zen-book#retain-cycles-on-self}}\
+\
+
+\f0\fs28 \'d4\'daARC\'bb\'b7\'be\'b3\'cf\'c2\'b5\'c4\'a3\'ac\'c3\'bf\'b8\'f6block\'d4\'da\'b4\'b4\'bd\'a8\'ca\'b1\'a3\'ac\'b1\'e0\'d2\'eb\'c6\'f7\'bb\'e1\'b6\'d4\'c0\'ef\'c3\'e6\'d3\'c3\'b5\'bd\'b5\'c4\'cb\'f9\'d3\'d0\'b6\'d4\'cf\'f3\'d7\'d4\'b6\'af\'d4\'f6\'bc\'d3\'d2\'bb\'b8\'f6reference count\'a3\'ac\'c8\'bb\'ba\'f3\'b5\'b1block\'d6\'b4\'d0\'d0\'cd\'ea\'b1\'cf\'ca\'b1\'a3\'ac\'d4\'d9\'ca\'cd\'b7\'c5\'d5\'e2\'d0\'a9reference\'a1\'a3
+\f1\fs22 \
+\pard\tx571\pardeftab571\pardirnatural\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 #import \cf3 <Foundation/Foundation.h>\cf2 \
+#import \cf3 "Tester.h"\cf2 \
+\cf0 \
+\cf4 int\cf0  main(\cf4 int\cf0  argc, \cf4 const\cf0  \cf4 char\cf0  * argv[]) \{\
+    \cf4 @autoreleasepool\cf0  \{\
+        \cf5 Tester\cf0  *tester = [[\cf5 Tester\cf0  \cf6 alloc\cf0 ] \cf6 init\cf0 ];\
+        [tester \cf7 test\cf0 ];\
+    \
+    \}\
+    \cf4 return\cf0  \cf8 0\cf0 ;\
+\}\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\tx571\pardeftab571\pardirnatural\partightenfactor0
+\cf2 \kerning1\expnd0\expndtw0 \CocoaLigature0 #import \cf3 "Tester.h"\cf2 \
+#import \cf3 "Student.h"\cf2 \
+\cf0 \
+\cf4 @interface\cf0  \cf5 Tester\cf0  ()\
+\
+\cf4 @property\cf0  (\cf4 nonatomic\cf0 ) \cf5 Student\cf0  *student;\
+\cf4 @end\cf0 \
+\
+\cf4 @implementation\cf0  Tester\
+\
+- (\cf4 void\cf0 )test \{\
+    \cf4 self\cf0 .\cf5 student\cf0  = [[\cf5 Student\cf0  \cf6 alloc\cf0 ] \cf6 init\cf0 ];\
+    [\cf4 self\cf0  \cf7 testBlock\cf0 ];\
+\}\
+\
+- (\cf4 void\cf0 )testBlock \{\
+    \cf4 void\cf0  (^block)() = ^()\{ // 
+\f2 \'d5\'e2\'d1\'f9\'d0\'b4\'c3\'bb\'d3\'d0\'ce\'ca\'cc\'e2\'a3\'ac\'b2\'e2\'ca\'d4\'d6\'a4\'c3\'f7
+\f1 dealloc
+\f2 \'b7\'bd\'b7\'a8\'b1\'bb\'b5\'f7\'d3\'c3
+\f1 \
+        \cf6 NSLog\cf0 (\cf3 @"%@"\cf0 , \cf4 self\cf0 .\cf5 student\cf0 ); \cf9 // If we use directly the keyword self inside a block, the object is retained at block declaration time within the block\cf0 \
+    \};\
+    block();\
+\}\
+\
+- (\cf4 void\cf0 )dealloc \{\
+    \cf6 NSLog\cf0 (\cf3 @"Tester dealloc"\cf0 );\
+\}\
+\
+\cf4 @end\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 -------------------------------------------------------------------------------------------------------------------\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'b2\'ce\'bf\'bc\'c1\'b4\'bd\'d3\'a3\'ba{\field{\*\fldinst{HYPERLINK "http://www.cocoachina.com/ios/20150109/10891.html"}}{\fldrslt http://www.cocoachina.com/ios/20150109/10891.html}}
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 {{\NeXTGraphic Pasted Graphic.tiff \width12720 \height5540
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0  \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\'d5\'bb\'c7\'f8\'a3\'a8stack\'a3\'a9\'a3\'ba\'d3\'c9\'cf\'b5\'cd\'b3\'d7\'d4\'b6\'af\'b7\'d6\'c5\'e4\'a3\'ac\'d2\'bb\'b0\'e3\'b4\'e6\'b7\'c5\'ba\'af\'ca\'fd\'b2\'ce\'ca\'fd\'d6\'b5\'a1\'a2\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'b5\'c4\'d6\'b5\'b5\'c8\'a1\'a3\'d3\'c9\'b1\'e0\'d2\'eb\'c6\'f7\'d7\'d4\'b6\'af\'b4\'b4\'bd\'a8\'d3\'eb\'ca\'cd\'b7\'c5\'a1\'a3\'c6\'e4\'b2\'d9\'d7\'f7\'b7\'bd\'ca\'bd\'c0\'e0\'cb\'c6\'d3\'da\'ca\'fd\'be\'dd\'bd\'e1\'b9\'b9\'d6\'d0\'b5\'c4\'d5\'bb\'a3\'ac\'bc\'b4\'ba\'f3\'bd\'f8\'cf\'c8\'b3\'f6\'a1\'a2\'cf\'c8\'bd\'f8\'ba\'f3\'b3\'f6\'b5\'c4\'d4\'ad\'d4\'f2\'a1\'a3\'c0\'fd\'c8\'e7\'a3\'ba\'d4\'da\'ba\'af\'ca\'fd\'d6\'d0\'c9\'ea\'c3\'f7\'d2\'bb\'b8\'f6\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bfint b;\'cf\'b5\'cd\'b3\'d7\'d4\'b6\'af\'d4\'da\'d5\'bb\'d6\'d0\'ce\'aab\'bf\'aa\'b1\'d9\'bf\'d5\'bc\'e4\'a1\'a3\
+\
+b\'d2\'bb\'b0\'e3\'d3\'c9\'b3\'cc\'d0\'f2\'d4\'b1\'c9\'ea\'c7\'eb\'b2\'a2\'d6\'b8\'c3\'f7\'b4\'f3\'d0\'a1\'a3\'ac\'d7\'ee\'d6\'d5\'d2\'b2\'d3\'c9\'b3\'cc\'d0\'f2\'d4\'b1\'ca\'cd\'b7\'c5\'a1\'a3\'c8\'e7\'b9\'fb\'b3\'cc\'d0\'f2\'d4\'b1\'b2\'bb\'ca\'cd\'b7\'c5\'a3\'ac\'b3\'cc\'d0\'f2\'bd\'e1\'ca\'f8\'ca\'b1\'bf\'c9\'c4\'dc\'bb\'e1\'d3\'c9OS\'bb\'d8 \'ca\'d5\'a1\'a3\'b6\'d4\'d3\'da\'b6\'d1\'c7\'f8\'b5\'c4\'b9\'dc\'c0\'ed\'ca\'c7\'b2\'c9\'d3\'c3\'c1\'b4\'b1\'ed\'ca\'bd\'b9\'dc\'c0\'ed\'b5\'c4\'a3\'ac\'b2\'d9\'d7\'f7\'cf\'b5\'cd\'b3\'d3\'d0\'d2\'bb\'b8\'f6\'bc\'c7\'c2\'bc\'bf\'d5\'cf\'d0\'c4\'da\'b4\'e6\'b5\'d8\'d6\'b7\'b5\'c4\'c1\'b4\'b1\'ed\'a3\'ac\'b5\'b1\'bd\'d3\'ca\'d5\'b5\'bd\'b3\'cc\'d0\'f2\'b7\'d6\'c5\'e4\'c4\'da\'b4\'e6\'b5\'c4\'c9\'ea\'c7\'eb\'ca\'b1\'a3\'ac\'b2\'d9\'d7\'f7\'cf\'b5\'cd\'b3\'be\'cd\'bb\'e1\'b1\'e9\'c0\'fa\'b8\'c3\'c1\'b4\'b1\'ed\'a3\'ac\'b1\'e9\'c0\'fa\'b5\'bd\'d2\'bb\'b8\'f6\'bc\'c7\'c2\'bc \'b5\'c4\'c4\'da\'b4\'e6\'b5\'d8\'d6\'b7\'b4\'f3\'d3\'da\'c9\'ea\'c7\'eb\'c4\'da\'b4\'e6\'b5\'c4\'c1\'b4\'b1\'ed\'bd\'da\'b5\'e3\'a3\'ac\'b2\'a2\'bd\'ab\'b8\'c3\'bd\'da\'b5\'e3\'b4\'d3\'b8\'c3\'c1\'b4\'b1\'ed\'d6\'d0\'c9\'be\'b3\'fd\'a3\'ac\'c8\'bb\'ba\'f3\'bd\'ab\'b8\'c3\'bd\'da\'b5\'e3\'bc\'c7\'c2\'bc\'b5\'c4\'c4\'da\'b4\'e6\'b5\'d8\'d6\'b7\'b7\'d6\'c5\'e4\'b8\'f8\'b3\'cc\'d0\'f2\'a1\'a3\
+\
+\'c8\'ab\'be\'d6\'c7\'f8/\'be\'b2\'cc\'ac\'c7\'f8\'a3\'ba\'b9\'cb\'c3\'fb\'cb\'bc\'d2\'e5\'a3\'ac\'c8\'ab\'be\'d6\'b1\'e4\'c1\'bf\'ba\'cd\'be\'b2\'cc\'ac\'b1\'e4\'c1\'bf\'b4\'e6\'b4\'a2\'d4\'da\'d5\'e2\'b8\'f6\'c7\'f8\'d3\'f2\'a1\'a3\'d6\'bb\'b2\'bb\'b9\'fd\'b3\'f5\'ca\'bc\'bb\'af\'b5\'c4\'c8\'ab\'be\'d6\'b1\'e4\'c1\'bf\'ba\'cd\'be\'b2\'cc\'ac\'b1\'e4\'c1\'bf\'b4\'e6\'b4\'a2\'d4\'da\'d2\'bb\'bf\'e9\'a3\'ac\'ce\'b4\'b3\'f5\'ca\'bc\'bb\'af\'b5\'c4\'c8\'ab\'be\'d6\'b1\'e4\'c1\'bf\'ba\'cd\'be\'b2\'cc\'ac\'b1\'e4\'c1\'bf\'b4\'e6\'b4\'a2\'d4\'da\'d2\'bb\'bf\'e9\'a1\'a3\'b3\'cc\'d0\'f2\'bd\'e1\'ca\'f8\'ba\'f3\'d3\'c9\'cf\'b5\'cd\'b3\'ca\'cd\'b7\'c5\'a1\'a3\
+\
+\'ce\'c4\'d7\'d6\'b3\'a3\'c1\'bf\'c7\'f8\'a3\'ba\'d5\'e2\'b8\'f6\'c7\'f8\'d3\'f2\'d6\'f7\'d2\'aa\'b4\'e6\'b4\'a2\'d7\'d6\'b7\'fb\'b4\'ae\'b3\'a3\'c1\'bf\'a1\'a3\'b3\'cc\'d0\'f2\'bd\'e1\'ca\'f8\'ba\'f3\'d3\'c9\'cf\'b5\'cd\'b3\'ca\'cd\'b7\'c5\'a1\'a3\
+\
+\'b3\'cc\'d0\'f2\'b4\'fa\'c2\'eb\'c7\'f8\'a3\'ba\'d5\'e2\'b8\'f6\'c7\'f8\'d3\'f2\'d6\'f7\'d2\'aa\'b4\'e6\'b7\'c5\'ba\'af\'ca\'fd\'cc\'e5\'b5\'c4\'b6\'fe\'bd\'f8\'d6\'c6\'b4\'fa\'c2\'eb\'a1\'a3\
+\
+\'cf\'c2\'c3\'e6\'be\'d9\'d2\'bb\'b8\'f6\'c7\'b0\'b1\'b2\'d0\'b4\'b5\'c4\'c0\'fd\'d7\'d3\'a3\'ba
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf10 \kerning1\expnd0\expndtw0 \CocoaLigature0 //main.cpp\cf0 \
+\cf11 int\cf0 \'a0a\'a0=\'a00;\'a0\cf10 //\'a0
+\f2 \'c8\'ab\'be\'d6\'b3\'f5\'ca\'bc\'bb\'af\'c7\'f8
+\f1 \cf0 \
+\cf11 char\cf0 \'a0*p1;\'a0\cf10 //\'a0
+\f2 \'c8\'ab\'be\'d6\'ce\'b4\'b3\'f5\'ca\'bc\'bb\'af\'c7\'f8
+\f1 \cf0 \
+main\'a0\{\
+    \'a0\'a0\'a0\'a0\cf11 int\cf0 \'a0b;\'a0\cf10 //\'a0
+\f2 \'d5\'bb
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0\cf11 char\cf0 \'a0s[]\'a0=\'a0\cf12 "abc"\cf0 ;\'a0\cf10 //\'a0
+\f2 \'d5\'bb
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0\cf11 char\cf0 \'a0*p2;\'a0\cf10 //\'a0
+\f2 \'d5\'bb
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0\cf11 char\cf0 \'a0*p3\'a0=\'a0\cf12 "123456"\cf0 ;\'a0\cf10 //\'a0123456\\0
+\f2 \'d4\'da\'b3\'a3\'c1\'bf\'c7\'f8\'a3\'ac
+\f1 p3
+\f2 \'d4\'da\'d5\'bb\'c9\'cf
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0\cf11 static\cf0 \'a0\cf11 int\cf0 \'a0c\'a0=0
+\f2 \'a3\'bb
+\f1 \'a0\cf10 //\'a0
+\f2 \'c8\'ab\'be\'d6\'be\'b2\'cc\'ac\'b3\'f5\'ca\'bc\'bb\'af\'c7\'f8
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0p1\'a0=\'a0(\cf11 char\cf0 \'a0*)malloc(10);\
+    \'a0\'a0\'a0\'a0p2\'a0=\'a0(\cf11 char\cf0 \'a0*)malloc(20);\'a0\cf10 //\'a0
+\f2 \'b7\'d6\'c5\'e4\'b5\'c3\'c0\'b4\'b5\'c4
+\f1 10
+\f2 \'ba\'cd
+\f1 20
+\f2 \'d7\'d6\'bd\'da\'b5\'c4\'c7\'f8\'d3\'f2\'be\'cd\'d4\'da\'b6\'d1\'c7\'f8
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0strcpy(p1,\'a0\cf12 "123456"\cf0 );\'a0\cf10 //\'a0123456\\0
+\f2 \'d4\'da\'b3\'a3\'c1\'bf\'c7\'f8\'a3\'ac\'d5\'e2\'b8\'f6\'ba\'af\'ca\'fd\'b5\'c4\'d7\'f7\'d3\'c3\'ca\'c7\'bd\'ab
+\f1 "123456"\'a0
+\f2 \'d5\'e2\'b4\'ae\'d7\'d6\'b7\'fb\'b4\'ae\'b8\'b4\'d6\'c6\'d2\'bb\'b7\'dd\'b7\'c5\'d4\'da
+\f1 p1
+\f2 \'c9\'ea\'c7\'eb\'b5\'c4
+\f1 10
+\f2 \'b8\'f6\'d7\'d6\'bd\'da\'b5\'c4\'b6\'d1\'c7\'f8\'d3\'f2\'d6\'d0\'a1\'a3
+\f1 \cf0 \
+    \'a0\'a0\'a0\'a0\cf10 //\'a0p3
+\f2 \'d6\'b8\'cf\'f2\'b5\'c4
+\f1 "123456"
+\f2 \'d3\'eb\'d5\'e2\'c0\'ef\'b5\'c4
+\f1 "123456"
+\f2 \'bf\'c9\'c4\'dc\'bb\'e1\'b1\'bb\'b1\'e0\'d2\'eb\'c6\'f7\'d3\'c5\'bb\'af\'b3\'c9\'d2\'bb\'b8\'f6\'b5\'d8\'d6\'b7\'a1\'a3
+\f1 \cf0 \
+\}\
+\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \'b1\'d5\'b0\'fc\'a3\'a8Closure\'a3\'a9\
+\'b1\'d5\'b0\'fc\'be\'cd\'ca\'c7\'d2\'bb\'b8\'f6\'ba\'af\'ca\'fd\'a3\'ac\'bb\'f2\'d5\'df\'d2\'bb\'b8\'f6\'d6\'b8\'cf\'f2\'ba\'af\'ca\'fd\'b5\'c4\'d6\'b8\'d5\'eb\'a3\'ac\'bc\'d3\'c9\'cf\'d5\'e2\'b8\'f6\'ba\'af\'ca\'fd\'d6\'b4\'d0\'d0\'b5\'c4\'b7\'c7\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a1\'a3\
+\'cb\'b5\'b5\'c4\'cd\'a8\'cb\'d7\'d2\'bb\'b5\'e3\'a3\'ac\'be\'cd\'ca\'c7\'b1\'d5\'b0\'fc\'d4\'ca\'d0\'ed\'d2\'bb\'b8\'f6\'ba\'af\'ca\'fd\'b7\'c3\'ce\'ca\'c9\'f9\'c3\'f7\'b8\'c3\'ba\'af\'ca\'fd\'d4\'cb\'d0\'d0\'c9\'cf\'cf\'c2\'ce\'c4\'d6\'d0\'b5\'c4\'b1\'e4\'c1\'bf\'a3\'ac\'c9\'f5\'d6\'c1\'bf\'c9\'d2\'d4\'b7\'c3\'ce\'ca\'b2\'bb\'cd\'ac\'d4\'cb\'d0\'d0\'c9\'cf\'ce\'c4\'d6\'d0\'b5\'c4\'b1\'e4\'c1\'bf\'a1\'a3\
+\'ce\'d2\'c3\'c7\'d3\'c3\'bd\'c5\'b1\'be\'d3\'ef\'d1\'d4\'c0\'b4\'bf\'b4\'d2\'bb\'cf\'c2\'a3\'ba
+\f1\fs22 \
+function funA(callback)\{\
+    alert(callback());\
+\}\
+function funB()\{\
+    var str = "Hello World"; // 
+\f2 \'ba\'af\'ca\'fd
+\f1 funB
+\f2 \'b5\'c4\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'ba\'af\'ca\'fd
+\f1 funA
+\f2 \'b5\'c4\'b7\'c7\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf
+\f1 \
+    funA
+\f2 \'a3\'a8
+\f1 \
+        function
+\f2 \'a3\'a8\'a3\'a9
+\f1 \{\
+            return str;\
+        \}\
+    
+\f2 \'a3\'a9\'a3\'bb
+\f1 \
+\}\
+\
+
+\f0\fs28 \'cd\'a8\'b9\'fd\'c9\'cf\'c3\'e6\'b5\'c4\'b4\'fa\'c2\'eb\'ce\'d2\'c3\'c7\'bf\'c9\'d2\'d4\'bf\'b4\'b3\'f6\'a3\'ac\'b0\'b4\'b3\'a3\'b9\'e6\'cb\'bc\'ce\'ac\'c0\'b4\'cb\'b5\'a3\'ac\'b1\'e4\'c1\'bfstr\'ca\'c7\'ba\'af\'ca\'fdfunB\'b5\'c4\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'d7\'f7\'d3\'c3\'d3\'f2\'d6\'bb\'d4\'da\'ba\'af\'ca\'fdfunB\'d6\'d0\'a3\'ac\'ba\'af\'ca\'fdfunA\'ca\'c7\'ce\'de\'b7\'a8\'b7\'c3\'ce\'ca\'b5\'bdstr\'b5\'c4\'a1\'a3\'b5\'ab\'ca\'c7\'c9\'cf\'ca\'f6\'b4\'fa\'c2\'eb\'ca\'be\'c0\'fd\'d6\'d0\'ba\'af\'ca\'fdfunA\'d6\'d0\'b5\'c4callback\'bf\'c9\'d2\'d4\'b7\'c3\'ce\'ca\'b5\'bdstr\'a3\'ac\'d5\'e2\'ca\'c7\'ce\'aa\'ca\'b2\'c3\'b4\'c4\'d8\'a3\'ac\'d2\'f2\'ce\'aa\'b1\'d5\'b0\'fc\'d0\'d4.
+\f1\fs22 \
+\
+
+\f0\fs28 block\'ca\'b5\'bc\'ca\'c9\'cf\'be\'cd\'ca\'c7Objective-C\'d3\'ef\'d1\'d4\'b6\'d4\'b1\'d5\'b0\'fc\'b5\'c4\'ca\'b5\'cf\'d6\CocoaLigature1 , \'ce\'d2\'c3\'c7\'d3\'c3\'d2\'bb\'d5\'c5\'b4\'f3\'ca\'a6\'ce\'c4\'d5\'c2\'c0\'ef\'b5\'c4\'cd\'bc\'c0\'b4\'d7\'dc\'bd\'e1\'d2\'bb\'cf\'c2block\'b5\'c4\'bd\'e1\'b9\'b9\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Pasted Graphic 2.tiff \width14100 \height5360
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature0 -------------------------------------------------------------------------------------------------------------------\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 block\'d6\'d0\'b1\'e4\'c1\'bf\'b5\'c4\'b8\'b4\'d6\'c6\'d3\'eb\'d0\'de\'b8\'c4 __block\
+Blocks\'bf\'c9\'d2\'d4\'b7\'c3\'ce\'ca\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'b5\'ab\'ca\'c7\'b2\'bb\'c4\'dc\'d0\'de\'b8\'c4, \'c8\'e7\'b9\'fb\'d0\'de\'b8\'c4\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'d0\'e8\'d2\'aa\'bc\'d3__block\'b8\'e6\'d6\'aa\'b1\'e0\'d2\'eb\'c6\'f7\'a3\'ba
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 \CocoaLigature0 #import \cf12 <Foundation/Foundation.h>\cf11 \
+int\cf0  main(\cf11 int\cf0  argc, \cf11 const\cf0  \cf11 char\cf0  * argv[]) \{\
+    \cf11 @autoreleasepool\cf0  \{\
+        \cf11 int\cf0  step = 10;\
+        \cf11 int\cf0  (^increment)(\cf11 int\cf0 ) = ^(\cf11 int\cf0  a) \{\
+            \cf11 int\cf0  value = step + a; \cf10 // OK, just use step, not change step.\cf0 \
+            \cf11 return\cf0  value;\
+        \};\
+    \}\
+    \cf11 return\cf0  0;\
+\}\
+\
+\cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+int\cf0  main(\cf11 int\cf0  argc, \cf11 const\cf0  \cf11 char\cf0  * argv[]) \{\
+    \cf11 @autoreleasepool\cf0  \{\
+        \cf11 int\cf0  step = 10;\
+        \cf11 int\cf0  (^changeAndIncrement)(\cf11 int\cf0 ) = ^(\cf11 int\cf0  a) \{\
+            step ++; \cf10 // ERROR: Variable is not assignable (missing __block type specifier)\cf0 \
+            \cf11 int\cf0  value = step + a;\
+            \cf11 return\cf0  value;\
+        \};\
+    \}\
+    \cf11 return\cf0  0;\
+\}\
+\cf10 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d6\'ae\'cb\'f9\'d2\'d4\'b4\'ed\'ce\'f3\'ca\'c7\'d2\'f2\'ce\'aa\CocoaLigature1 \'cd\'a8\'b9\'fdblock\'bd\'f8\'d0\'d0\'b1\'d5\'b0\'fc\'b5\'c4\'b1\'e4\'c1\'bf\'ca\'c7const\'b5\'c4\'a3\'ac\'d2\'b2\'be\'cd\'ca\'c7\'cb\'b5\'b2\'bb\'c4\'dc\'d4\'dablock\'d6\'d0\'d6\'b1\'bd\'d3\'d0\'de\'b8\'c4\'d5\'e2\'d0\'a9\'b1\'e4\'c1\'bf\'a1\'a3\expnd0\expndtw0\kerning0
+\'b6\'d4\'d3\'dablock\'cd\'e2\'b5\'c4\'b1\'e4\'c1\'bf\'d2\'fd\'d3\'c3\'a3\'acblock\'c4\'ac\'c8\'cf\'ca\'c7\'bd\'ab\'c6\'e4\'b8\'b4\'d6\'c6\'b5\'bd\'c6\'e4\'ca\'fd\'be\'dd\'bd\'e1\'b9\'b9\'d6\'d0\'c0\'b4\'ca\'b5\'cf\'d6\'b7\'c3\'ce\'ca\'b5\'c4
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic Pasted Graphic 3.tiff \width6740 \height3380
+}¬}\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \kerning1\expnd0\expndtw0 \CocoaLigature0 \'d4\'dablock\'c4\'da\'b2\'bf\'d0\'de\'b8\'c4block\'cd\'e2\'b2\'bf\'b5\'c4\'b1\'e4\'c1\'bf(\'b6\'f8\'c7\'d2\'d5\'e2\'b8\'f6\'b1\'e4\'c1\'bf\'ca\'c7\'be\'d6\'b2\'bf\'b5\'c4)\'a3\'ac\'d2\'aa\'bc\'d3__block, \'c9\'cf\'c0\'fd\'d6\'d0\'a3\'ac\'bc\'b4\'b0\'d1\cf11 int\cf0  step = 10; \'d0\'de\'b8\'c4\'ce\'aa\'a3\'ba\cf11 __block\cf0  \cf11 int\cf0  step = 10; 
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __block\cf0  \cf11 int\cf0  step = 10;\
+\cf11 int\cf0  (^changeAndIncrement)(\cf11 int\cf0 ) = ^(\cf11 int\cf0  a) \{\
+    step ++; \cf10 // OK\cf0 \
+    \cf11 int\cf0  value = step + a;\
+    \cf11 return\cf0  value;\
+\};\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \'b6\'d4\'d3\'da\'d3\'c3__block\'d0\'de\'ca\'ce\'b5\'c4\'cd\'e2\'b2\'bf\'b1\'e4\'c1\'bf\'d2\'fd\'d3\'c3\'a3\'acblock\'ca\'c7\'b8\'b4\'d6\'c6\'c6\'e4\'d2\'fd\'d3\'c3\'b5\'d8\'d6\'b7\'c0\'b4\'ca\'b5\'cf\'d6\'b7\'c3\'ce\'ca\'b5\'c4\'a3\'ac\'c8\'e7\'cf\'c2\'cd\'bc\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic Pasted Graphic 4.tiff \width5460 \height3280
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature0 -------------------------------------------------------------------------------------------------------------------\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'b1\'e0\'d2\'eb\'c6\'f7\'d6\'d0\'b5\'c4block\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \'ce\'d2\'c3\'c7\'cd\'a8\'b9\'fd\'b4\'f3\'ca\'a6\'ce\'c4\'d5\'c2\'d6\'d0\'b5\'c4\'d2\'bb\'d5\'c5\'cd\'bc\'c0\'b4\'cb\'b5\'c3\'f7\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic Pasted Graphic 5.tiff \width8360 \height8140
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 struct\cf0  Block_descriptor \{\
+    \cf11 unsigned\cf0  \cf11 long\cf0  \cf11 int\cf0  reserved;\
+    \cf11 unsigned\cf0  \cf11 long\cf0  \cf11 int\cf0  size;\
+    \cf11 void\cf0  (*copy)(\cf11 void\cf0  *dst, \cf11 void\cf0  *src);\
+    \cf11 void\cf0  (*dispose)(\cf11 void\cf0  *);\
+\};\
+\
+\cf11 struct\cf0  Block_layout \{\
+    \cf11 void\cf0  *isa;\
+    \cf11 int\cf0  flags;\
+    \cf11 int\cf0  reserved;\
+    \cf11 void\cf0  (*invoke)(\cf11 void\cf0  *, ...);\
+    \cf11 struct\cf0  \cf13 Block_descriptor\cf0  *descriptor;\
+    \cf10 /* Imported variables. */\cf0 \
+\};\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \'b4\'d3\'c9\'cf\'c3\'e6\'b4\'fa\'c2\'eb\'bf\'b4\'b3\'f6\'a3\'acBlock_layout\'be\'cd\'ca\'c7\'b6\'d4block\'bd\'e1\'b9\'b9\'cc\'e5\'b5\'c4\'b6\'a8\'d2\'e5\'a3\'ba\
+isa\'d6\'b8\'d5\'eb\'a3\'ba\'d6\'b8\'cf\'f2\'b1\'ed\'c3\'f7\'b8\'c3block\'c0\'e0\'d0\'cd\'b5\'c4\'c0\'e0\'a1\'a3\
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf0 flags\'a3\'ba\'b0\'b4bit\'ce\'bb\'b1\'ed\'ca\'be\'d2\'bb\'d0\'a9block\'b5\'c4\'b8\'bd\'bc\'d3\'d0\'c5\'cf\'a2\'a3\'ac\'b1\'c8\'c8\'e7\'c5\'d0\'b6\'cfblock\'c0\'e0\'d0\'cd\'a1\'a2\'c5\'d0\'b6\'cfblock\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'a1\'a2\'c5\'d0\'b6\'cfblock\'ca\'c7\'b7\'f1\'d0\'e8\'d2\'aa\'d6\'b4\'d0\'d0\'b8\'a8\'d6\'fa\'ba\'af\'ca\'fd\'b5\'c8\'a1\'a3reserved\'a3\'ba\'b1\'a3\'c1\'f4\'b1\'e4\'c1\'bf\'a3\'ac\'ce\'d2\'b5\'c4\'c0\'ed\'bd\'e2\'ca\'c7\'b1\'ed\'ca\'beblock\'c4\'da\'b2\'bf\'b5\'c4\'b1\'e4\'c1\'bf\'ca\'fd\'a1\'a3invoke\'a3\'ba\'ba\'af\'ca\'fd\'d6\'b8\'d5\'eb\'a3\'ac\'d6\'b8\'cf\'f2\'be\'df\'cc\'e5\'b5\'c4block\'ca\'b5\'cf\'d6\'b5\'c4\'ba\'af\'ca\'fd\'b5\'f7\'d3\'c3\'b5\'d8\'d6\'b7\'a1\'a3descriptor\'a3\'bablock\'b5\'c4\'b8\'bd\'bc\'d3\'c3\'e8\'ca\'f6\'d0\'c5\'cf\'a2\'a3\'ac\'b1\'c8\'c8\'e7\'b1\'a3\'c1\'f4\'b1\'e4\'c1\'bf\'ca\'fd\'a1\'a2block\'b5\'c4\'b4\'f3\'d0\'a1\'a1\'a2\'bd\'f8\'d0\'d0copy\'bb\'f2dispose\'b5\'c4\'b8\'a8\'d6\'fa\'ba\'af\'ca\'fd\'d6\'b8\'d5\'eb\'a1\'a3variables\'a3\'ba\'d2\'f2\'ce\'aablock\'d3\'d0\'b1\'d5\'b0\'fc\'d0\'d4\'a3\'ac\'cb\'f9\'d2\'d4\'bf\'c9\'d2\'d4\'b7\'c3\'ce\'cablock\'cd\'e2\'b2\'bf\'b5\'c4\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a1\'a3\'d5\'e2\'d0\'a9variables\'be\'cd\'ca\'c7\'b8\'b4\'d6\'c6\'b5\'bd\'bd\'e1\'b9\'b9\'cc\'e5\'d6\'d0\'b5\'c4\'cd\'e2\'b2\'bf\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'bb\'f2\'b1\'e4\'c1\'bf\'b5\'c4\'b5\'d8\'d6\'b7\'a1\'a3
+\f1\fs22 \kerning1\expnd0\expndtw0 \CocoaLigature0 \uc0\u8232 -------------------------------------------------------------------------------------------------------------------\u8232 
+\f0\fs28 block\'b5\'c4\'c0\'e0\'d0\'cd\expnd0\expndtw0\kerning0
+\CocoaLigature1 block\'d3\'d0\'bc\'b8\'d6\'d6\'b2\'bb\'cd\'ac\'b5\'c4\'c0\'e0\'d0\'cd\'a3\'ac\'c3\'bf\'d6\'d6\'c0\'e0\'d0\'cd\'b6\'bc\'d3\'d0\'b6\'d4\'d3\'a6\'b5\'c4\'c0\'e0\'a3\'ac\'c9\'cf\'ca\'f6\'d6\'d0isa\'d6\'b8\'d5\'eb\'be\'cd\'ca\'c7\'d6\'b8\'cf\'f2\'d5\'e2\'b8\'f6\'c0\'e0\'a1\'a3\'d5\'e2\'c0\'ef\'c1\'d0\'b3\'f6\'b3\'a3\'bc\'fb\'b5\'c4\'c8\'fd\'d6\'d6\'c0\'e0\'d0\'cd_NSConcreteGlobalBlock
+\f3\b\fs22 \uc0\u8232 _NSConcreteStackBlock\u8232 _NSConcreteMallocBlock
+\f1\b0 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 _NSConcreteGlobalBlock\'a3\'ba \'c8\'ab\'be\'d6\'b5\'c4\'be\'b2\'cc\'acblock\'a3\'ac\'b2\'bb\'bb\'e1\'b7\'c3\'ce\'ca\'c8\'ce\'ba\'ce\'cd\'e2\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'b2\'bb\'bb\'e1\'c9\'e6\'bc\'b0\'b5\'bd\'c8\'ce\'ba\'ce\'bf\'bd\'b1\'b4
+\f1\fs22 \
+
+\f0\fs28 \'b2\'e2\'ca\'d4\'bb\'b7\'be\'b3\'a3\'ba\kerning1\expnd0\expndtw0 \CocoaLigature0 ARC
+\f1\fs22 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 \CocoaLigature0 - (\cf11 void\cf0 )exampleInARC \{\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0     \cf11 char\cf0  a = 'A';\
+    \cf11 void\cf0  (^globalBlock)() = ^\{\
+        \cf13 NSLog\cf0 (\cf12 @"hello world!"\cf0 );\
+        \cf10 // NSLog(@"%c", a);\cf0 \
+        \cf10 // [self xxx];\cf0 \
+    \};\
+    globalBlock();\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , globalBlock); \cf10 // __NSGlobalBlock__ 
+\f2 \'c8\'e7\'b9\'fb\'b0\'d1\'c9\'cf\'c3\'e6\'b5\'c4
+\f1 NSLog(@"%c", a)
+\f2 \'bb\'f2
+\f1 [self xxx]
+\f2 \'c8\'a1\'cf\'fb\'d7\'a2\'ca\'cd\'a3\'ac\'d4\'f2\'d5\'e2\'c0\'ef\'bb\'e1\'b4\'f2\'d3\'a1
+\f1 __NSMallocBlock__
+\f2 \'a3\'ac\'d5\'e2\'ca\'c7\'d4\'da
+\f1 ARC
+\f2 \'d6\'d0\'b1\'e0\'d2\'eb\'c6\'f7\'d7\'f6\'c1\'cb\'d3\'c5\'bb\'af\'a3\'ac\'b0\'d1\'b4\'cb
+\f1 block
+\f2 \'b7\'c5\'d4\'da\'c1\'cb\'b6\'d1\'d6\'d0
+\f1 \cf0 \
+    \
+    \cf10 // ^\{NSLog(@"%c", a);\}();\cf0 \
+\}\
+\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \'b2\'e2\'ca\'d4\'bb\'b7\'be\'b3\'a3\'ba\kerning1\expnd0\expndtw0 \CocoaLigature0 MRC
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 - (\cf11 void\cf0 )exampleInMRC \{\
+    \cf11 char\cf0  a = 'A';\
+    \cf11 void\cf0  (^globalBlock)() = ^\{\
+        \cf13 NSLog\cf0 (\cf12 @"hello world!"\cf0 );\
+        \cf10 // NSLog(@"%c", a);\cf0 \
+        \cf10 // [self xxx];\cf0 \
+    \};\
+    globalBlock();\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , globalBlock); \cf10 // __NSGlobalBlock__, 
+\f2 \'c8\'e7\'b9\'fb\'b0\'d1\'c9\'cf\'c3\'e6\'b5\'c4
+\f1 NSLog(@"%c", a)
+\f2 \'bb\'f2
+\f1 [self xxx]
+\f2 \'c8\'a1\'cf\'fb\'d7\'a2\'ca\'cd\'a3\'ac\'d4\'f2\'d5\'e2\'c0\'ef\'bb\'e1\'b4\'f2\'d3\'a1
+\f1 __NSStackBlock__, 
+\f2 \'b4\'cb
+\f1 block
+\f2 \'d4\'da\'d5\'bb\'d6\'d0
+\f1 \cf0 \
+    \cf10 // ^\{NSLog(@"%c", a);\}();\cf0 \
+\}\
+\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 _NSConcreteStackBlock\'a3\'ba
+\f1\fs22 \
+
+\f0\fs28 \'b1\'a3\'b4\'e6\'d4\'da\'d5\'bb\'d6\'d0\'b5\'c4block, \'b5\'b1\'ba\'af\'ca\'fd\'b7\'b5\'bb\'d8\'ca\'b1\'b1\'bb\'cf\'fa\'bb\'d9
+\f1\fs22 \
+
+\f0\fs28 \'b2\'e2\'ca\'d4\'bb\'b7\'be\'b3\'a3\'baMRC
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \kerning1\expnd0\expndtw0 \CocoaLigature0 - (\cf11 void\cf0 )exampleB \{\
+    \cf13 NSMutableArray\cf0  *array = [\cf13 NSMutableArray\cf0  \cf13 array\cf0 ];\
+    [\cf11 self\cf0  \cf13 exampleB_addBlockToArray\cf0 :array];\
+    \cf13 NSLog\cf0 (\cf12 @"%ld"\cf0 , array.\cf13 count\cf0 ); \cf10 // 1\cf0 \
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , array[0]); \cf10 // Crash here: EXC_BAD_ACCESS\cf0 \
+\}\
+\
+- (\cf11 void\cf0 )exampleB_addBlockToArray:(\cf13 NSMutableArray\cf0  *)array \{\
+    \cf11 char\cf0  b = 'B';\
+    \cf11 void\cf0  (^example_block)() = ^() \{\
+        \cf13 NSLog\cf0 (\cf12 @"%c"\cf0 , b);\
+    \};\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , example_block);\
+    \cf10 // [array addObject:exapme_block]; //  __NSStackBlock__ ^\{NSLog(@"%c", b);\}\cf0 \
+    \cf10 // block
+\f2 \'cc\'e5\'b6\'a8\'d2\'e5\'d4\'da\'d5\'e2\'b8\'f6\'ba\'af\'ca\'fd\'cc\'e5\'d6\'d0\'a3\'ac\'b4\'e6\'b4\'a2\'d4\'da\'d5\'bb\'d6\'d0\'a3\'ac\'c8\'f4\'b2\'bb\'ca\'c7
+\f1 ARC, block
+\f2 \'d2\'bb\'d6\'b1\'d4\'da\'d5\'bb\'d6\'d0
+\f1 , exampleB
+\f2 \'b5\'f7\'d3\'c3
+\f1 block
+\f2 \'bd\'ab\'b7\'a2\'c9\'fa\'b4\'ed\'ce\'f3\'a3\'ac\'c8\'e7\'b9\'fb\'ca\'c7
+\f1 arc
+\f2 \'b1\'e0\'d2\'eb\'c6\'f7\'bb\'e1\'d3\'c5\'bb\'af\'a3\'ac\'bd\'ab\'c6\'e4
+\f1 copy
+\f2 \'b5\'bd\'b6\'d1\'d6\'d0\'bd\'f8\'d0\'d0\'b5\'f7\'d3\'c3
+\f1 \cf0 \
+    \
+    [array \cf13 addObject\cf0 :example_block];\
+    \cf10 // [array addObject:Block_copy(exapme_block)];\cf0 \
+    \
+    \cf13 NSLog\cf0 (\cf12 @"%ld"\cf0 , array.\cf13 count\cf0 ); \cf10 // 1\cf0 \
+\}\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \
+
+\f0\fs28 \'c8\'e7\'b9\'fb\'ca\'c7MRC\'b5\'c4\'c7\'e9\'bf\'f6\'a3\'acblock\'b1\'a3\'b4\'e6\'d4\'da\'d5\'bb\'c9\'cf\'a3\'ac\'d3\'d0\'bf\'c9\'c4\'dc\'d3\'f6\'b5\'bd\'d2\'bb\'d0\'a9\'ce\'ca\'cc\'e2\'a3\'ba\
+\'b2\'e2\'ca\'d4\'bb\'b7\'be\'b3\'a3\'baMRC
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 - (\cf11 void\cf0 )testInMRC \{\
+    \cf13 NSMutableArray\cf0  *array = [\cf13 NSMutableArray\cf0  \cf13 array\cf0 ];\
+    [\cf11 self\cf0  \cf13 testInMRC_addBlockToArray\cf0 :array];\
+    \cf13 NSLog\cf0 (\cf12 @"%ld"\cf0 , array.\cf13 count\cf0 ); \cf10 // 1\cf0 \
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , array[0]); \cf10 // Crash here: EXC_BAD_ACCESS\cf0 \
+\}\
+\
+- (\cf11 void\cf0 )testInMRC_addBlockToArray:(\cf13 NSMutableArray\cf0  *)array \{\
+    \cf11 char\cf0  b = 'B';\
+    \cf11 void\cf0  (^example_block)() = ^() \{\
+        \cf13 NSLog\cf0 (\cf12 @"%c"\cf0 , b);\
+    \};\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , example_block); \cf10 // __NSStackBlock__\cf0 \
+    \cf10 // block
+\f2 \'cc\'e5\'b6\'a8\'d2\'e5\'d4\'da\'d5\'e2\'b8\'f6\'ba\'af\'ca\'fd\'cc\'e5\'d6\'d0\'a3\'ac\'b4\'e6\'b4\'a2\'d4\'da\'d5\'bb\'d6\'d0\'a3\'ac\'c8\'f4\'b2\'bb\'ca\'c7
+\f1 ARC, block
+\f2 \'d2\'bb\'d6\'b1\'d4\'da\'d5\'bb\'d6\'d0
+\f1 , 
+\f2 \'d4\'da\'b7\'bd\'b7\'a8
+\f1 testInMRC
+\f2 \'d6\'d0\'b5\'f7\'d3\'c3
+\f1 block
+\f2 \'bd\'ab\'b7\'a2\'c9\'fa\'b4\'ed\'ce\'f3\'a3\'ac\'c8\'e7\'b9\'fb\'ca\'c7
+\f1 arc
+\f2 \'b1\'e0\'d2\'eb\'c6\'f7\'bb\'e1\'d3\'c5\'bb\'af\'a3\'ac\'bd\'ab\'c6\'e4
+\f1 copy
+\f2 \'b5\'bd\'b6\'d1\'d6\'d0
+\f1 \cf0 \
+    \
+    [array \cf13 addObject\cf0 :example_block];\
+    \cf10 // [array addObject:Block_copy(example_block)];\cf0 \
+    \
+    \cf13 NSLog\cf0 (\cf12 @"%ld"\cf0 , array.\cf13 count\cf0 ); \cf10 // 1\cf0 \
+\}\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \'d4\'da\'c9\'cf\'c0\'fd\'d6\'d0\'bb\'b7\'be\'b3\'ca\'c7MRC, example_block\'b4\'e6\'b4\'a2\'d4\'da\'d5\'bb\'d6\'d0\'a3\'ac\'d4\'da\'b5\'f7\'d3\'c3[array addObject:example_block]\'ba\'f3\'a3\'ac example_block\'c8\'d4\'c8\'bb\'d4\'da\'d5\'bb\'d6\'d0\'a3\'ac\'d4\'da\'b7\'bd\'b7\'a8testInMRC\'d6\'d0\'a3\'ac\'ca\'fd\'d7\'e9array\'cb\'e4\'c8\'bb\'d3\'d0\'d2\'bb\'b8\'f6\'d4\'aa\'cb\'d8\'a3\'ac\'b5\'ab\'d5\'e2\'b8\'f6\'d6\'b8\'d5\'eb\'d2\'d1\'d6\'b8\'cf\'f2\'b2\'bb\'d6\'aa\'c4\'c4\'bf\'e9\'c4\'da\'b4\'e6\'c8\'a5\'c1\'cb\'a3\'ac\'d2\'f2\'ce\'aa\'b4\'e6\'b4\'a2\'d4\'da\'d5\'bb\'d6\'d0\'b5\'c4\'c4\'c7\'b8\'f6example_block\'d4\'da\'b7\'bd\'b7\'a8\'bd\'e1\'ca\'f8\'ba\'f3\'b3\'f6\'d5\'bb\'a3\'ac\'be\'cd\'c3\'bb\'c1\'cb\'a3\'ac\'cb\'f9\'d2\'d4\'ce\'d2\'c3\'c7\'d3\'a6\'b8\'c3\'d4\'da\'b0\'d1\'b8\'c3block\'bc\'d3\'c8\'eb\'ca\'fd\'d7\'e9\'ca\'b1\'d5\'e2\'d1\'f9\'b5\'f7\'d3\'c3\'a3\'ba[array addObject:Block_copy(example_block)], Block_copy\'b7\'bd\'b7\'a8\'b8\'ba\'d4\'f0\'b0\'d1block\'bf\'bd\'b1\'b4\'c8\'eb\'b6\'d1\'d6\'d0:
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 - (\cf11 void\cf0 )testInMRC \{\
+    \cf13 NSMutableArray\cf0  *array = [\cf13 NSMutableArray\cf0  \cf13 array\cf0 ];\
+    [\cf11 self\cf0  \cf13 testInMRC_addBlockToArray\cf0 :array];\
+    \cf13 NSLog\cf0 (\cf12 @"%ld"\cf0 , array.\cf13 count\cf0 ); \cf10 // 1\cf0 \
+    \cf11 Block_release\cf0 (array[0]); \cf10 // OK\cf0 \
+    \cf13 NSLog\cf0 (\cf12 @"%ld"\cf0 , array.\cf13 count\cf0 ); \cf10 // 1\cf0 \
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , array[0]); \cf10 // __NSMallocBlock__\cf0 \
+\}\
+\
+- (\cf11 void\cf0 )testInMRC_addBlockToArray:(\cf13 NSMutableArray\cf0  *)array \{\
+    \cf11 char\cf0  b = 'B';\
+    \cf11 void\cf0  (^example_block)() = ^() \{\
+        \cf13 NSLog\cf0 (\cf12 @"%c"\cf0 , b);\
+    \};\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , example_block); \cf10 // __NSStackBlock__\cf0 \
+    [array \cf13 addObject\cf0 :\cf11 Block_copy\cf0 (example_block)];\
+\}\
+\
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \'c8\'e7\'b9\'fb\'d5\'e2\'b8\'f6\'c0\'fd\'d7\'d3\'d3\'c3ARC\'c0\'b4\'d0\'b4\'be\'cd\'b2\'bb\'bb\'e1\'d3\'d0\'ce\'ca\'cc\'e2\'a3\'ba
+\f1\fs22 \
+
+\f2 \'b2\'e2\'ca\'d4\'bb\'b7\'be\'b3\'a3\'ba
+\f1 ARC\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 - (\cf11 void\cf0 )testInARC \{\
+    \cf13 NSMutableArray\cf0  *array = [\cf13 NSMutableArray\cf0  \cf13 array\cf0 ];\
+    [\cf11 self\cf0  \cf13 testInARC_addBlockToArray\cf0 :array];\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , array[0]); \cf10 // __NSMallocBlock__\cf0 \
+\}\
+\
+- (\cf11 void\cf0 )testInARC_addBlockToArray:(\cf13 NSMutableArray\cf0  *)array \{\
+    \cf11 char\cf0  b = 'B';\
+    \cf11 void\cf0  (^exapme_block)() = ^() \{\
+        \cf13 NSLog\cf0 (\cf12 @"%c"\cf0 , b);\
+    \};\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , exapme_block); \cf10 // __NSMallocBlock__\cf0 \
+    [array \cf13 addObject\cf0 :exapme_block]; \cf10 // ^\{NSLog(@"%c", b);\}\cf0 \
+\}\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \
+\
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 _NSConcreteMallocBlock\'ba\'dc\'b6\'e0\'c7\'e9\'bf\'f6\'cf\'c2\'a3\'ac\'ce\'d2\'c3\'c7\'b4\'a6\'c0\'ed\'b5\'c4block\'c8\'ab\'bb\'e1\'ca\'c7\'d4\'da\'b6\'d1\'d6\'d0\'b5\'c4\'a3\'ac\'d2\'f2\'ce\'aablock\'bf\'c9\'c4\'dc\'b2\'bb\'ca\'c7\'d4\'da\'b4\'b4\'bd\'a8\'ba\'f3\'c2\'ed\'c9\'cf\'b5\'f7\'d3\'c3\'a3\'ac\'b6\'f8\'ca\'c7\'d4\'da\'c6\'e4\'cb\'fb\'b5\'d8\'b7\'bd\'b5\'f7\'d3\'c3\'a3\'ac\'d5\'e2\'ca\'b1\'ba\'f2\'ce\'aa\'c1\'cb\'b1\'a3\'d6\'a4block\'b5\'c4\'d3\'d0\'d0\'a7\'d0\'d4\'a3\'ac\'b7\'c5\'b5\'bd\'b6\'d1\'d6\'d0\'a1\'a3\'b5\'ab\'d0\'e8\'d2\'aa\'d7\'a2\'d2\'e2\'d2\'bb\'d0\'a9\'cf\'b8\'bd\'da\'a3\'ac\'b1\'c8\'c8\'e7\'d3\'d0\'bf\'c9\'c4\'dc\'d2\'fd\'b7\'a2\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'b5\'c4\'ce\'ca\'cc\'e2\'a3\'ac\'c9\'d4\'ba\'f2\'cf\'ea\'bd\'e2\'a1\'a3\
+\'bc\'f2\'b5\'a5\'d7\'dc\'bd\'e1\'d2\'bb\'cf\'c2\'a3\'ba_NSConcreteGlobalBlock\'c0\'e0\'d0\'cd\'b5\'c4block\'d2\'aa\'c3\'b4\'ca\'c7\'bf\'d5block\'a3\'ac\'d2\'aa\'c3\'b4\'ca\'c7\'b2\'bb\'b7\'c3\'ce\'ca\'c8\'ce\'ba\'ce\'cd\'e2\'b2\'bf\'b1\'e4\'c1\'bf\'b5\'c4block\'a1\'a3\'cb\'fc\'bc\'c8\'b2\'bb\'d4\'da\'d5\'bb\'d6\'d0\'a3\'ac\'d2\'b2\'b2\'bb\'d4\'da\'b6\'d1\'d6\'d0\'a3\'ac\'ce\'d2\'c0\'ed\'bd\'e2\'ce\'aa\'cb\'fc\'bf\'c9\'c4\'dc\'d4\'da\'c4\'da\'b4\'e6\'b5\'c4\'c8\'ab\'be\'d6\'c7\'f8\'a1\'a3_NSConcreteStackBlock\'c0\'e0\'d0\'cd\'b5\'c4block\'d3\'d0\'b1\'d5\'b0\'fc\'d0\'d0\'ce\'aa\'a3\'ac\'d2\'b2\'be\'cd\'ca\'c7\'d3\'d0\'b7\'c3\'ce\'ca\'cd\'e2\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'b2\'a2\'c7\'d2\'b8\'c3block\'d6\'bb\'c7\'d2\'d6\'bb\'d3\'d0\'d3\'d0\'d2\'bb\'b4\'ce\'d6\'b4\'d0\'d0\'a3\'ac\'d2\'f2\'ce\'aa\'d5\'bb\'d6\'d0\'b5\'c4\'bf\'d5\'bc\'e4\'ca\'c7\'bf\'c9\'d6\'d8\'b8\'b4\'ca\'b9\'d3\'c3\'b5\'c4\'a3\'ac\'cb\'f9\'d2\'d4\'b5\'b1\'d5\'bb\'d6\'d0\'b5\'c4block\'d6\'b4\'d0\'d0\'d2\'bb\'b4\'ce\'d6\'ae\'ba\'f3\'be\'cd\'b1\'bb\'c7\'e5\'b3\'fd\'b3\'f6\'d5\'bb\'c1\'cb\'a3\'ac\'cb\'f9\'d2\'d4\'ce\'de\'b7\'a8\'b6\'e0\'b4\'ce\'ca\'b9\'d3\'c3\'a1\'a3_NSConcreteMallocBlock\'c0\'e0\'d0\'cd\'b5\'c4block\'d3\'d0\'b1\'d5\'b0\'fc\'d0\'d0\'ce\'aa\'a3\'ac\'b2\'a2\'c7\'d2\'b8\'c3block\'d0\'e8\'d2\'aa\'b1\'bb\'b6\'e0\'b4\'ce\'d6\'b4\'d0\'d0\'a1\'a3\'b5\'b1\'d0\'e8\'d2\'aa\'b6\'e0\'b4\'ce\'d6\'b4\'d0\'d0\'ca\'b1\'a3\'ac\'be\'cd\'bb\'e1\'b0\'d1\'b8\'c3block\'b4\'d3\'d5\'bb\'d6\'d0\'b8\'b4\'d6\'c6\'b5\'bd\'b6\'d1\'d6\'d0\'a3\'ac\'b9\'a9\'d2\'d4\'b6\'e0\'b4\'ce\'d6\'b4\'d0\'d0\'a1\'a3
+\f1\fs22 \kerning1\expnd0\expndtw0 \CocoaLigature0 \uc0\u8232 -------------------------------------------------------------------------------------------------------------------\u8232 
+\f0\fs28 \'bf\'b4\'d2\'bb\'cf\'c2\'b1\'e0\'d2\'eb\'c6\'f7\'d4\'f5\'c3\'b4\'d7\'f6\'b5\'c4\'a3\'ba\cf11 #import \cf12 <Foundation/Foundation.h>
+\f1\fs22 \cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 typedef\cf0  \cf11 void\cf0  (^BlockA)();\
+\
+\cf11 void\cf0  runBlockA(\cf13 BlockA\cf0  block) \{\
+    block();\
+\}\
+\
+\cf11 void\cf0  test() \{\
+    \cf13 BlockA\cf0  block = ^\{\
+        \cf13 NSLog\cf0 (\cf12 @"Hello world!"\cf0 );\
+    \};\
+    \cf13 runBlockA\cf0 (block);\
+\}\
+\
+\cf11 int\cf0  main(\cf11 int\cf0  argc, \cf11 const\cf0  \cf11 char\cf0  * argv[]) \{\
+    \cf11 @autoreleasepool\cf0  \{\
+        \cf13 test\cf0 (); \cf10 // Hello world!\cf0 \
+    \}\
+    \cf11 return\cf0  0;\
+\}\
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 void\cf0  runBlockA(\cf11 struct\cf0  \cf13 Block_layout\cf0  *block) \{\
+    block->invoke();\
+\}\
+\
+\cf11 void\cf0  test() \{\
+    \cf11 struct\cf0  Block_descriptor descriptor;\
+    descriptor->reserved = 0;\
+    descriptor->size = 20;\
+    descriptor->copy = \cf11 NULL\cf0 ;\
+    descriptor->dispose = \cf11 NULL\cf0 ;\
+    \
+    \cf11 struct\cf0  Block_layout block;\
+    block->isa = _NSConcreteGlobalBlock;\
+    block->flags = 1342177280;\
+    block->reserved = 0;\
+    block->invoke = block_invoke;\
+    block->descriptor = descriptor;\
+    runBlockA(&block);\
+\}\
+\
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 \'c8\'e7\'b9\'fb\'ce\'d2\'c3\'c7\'cf\'eb\'d2\'aa\'d4\'da\'d2\'d4\'ba\'f3\'bc\'cc\'d0\'f8\'ca\'b9\'d3\'c3\'c4\'b3\'b8\'f6block\'a3\'ac\'be\'cd\'b1\'d8\'d0\'eb\'d2\'aa\'b6\'d4\'b8\'c3block\'bd\'f8\'d0\'d0\'bf\'bd\'b1\'b4\'b2\'d9\'d7\'f7\'a3\'ac\'bc\'b4\'b4\'d3\'d5\'bb\'bf\'d5\'bc\'e4\'b8\'b4\'d6\'c6\'b5\'bd\'b6\'d1\'bf\'d5\'bc\'e4(ARC\'bb\'e1\'d7\'f6\'ba\'dc\'b6\'e0\'ca\'c2)\'a1\'a3\'cb\'f9\'d2\'d4\'bf\'bd\'b1\'b4\'b2\'d9\'d7\'f7\'be\'cd\'d0\'e8\'d2\'aa\'b5\'f7\'d3\'c3 Block_copy()\'ba\'af\'ca\'fd\'a3\'acblock\'b5\'c4descriptor\'d6\'d0\'d3\'d0\'d2\'bb\'b8\'f6copy()\'b8\'a8\'d6\'fa\'ba\'af\'ca\'fd\'a3\'ac\'b8\'c3\'ba\'af\'ca\'fd\'d4\'daBlock_copy()\'d6\'d0\'d6\'b4\'d0\'d0\'a3\'ac\'d3\'c3\'d3\'da\'b5\'b1 block\'d0\'e8\'d2\'aa\'bf\'bd\'b1\'b4\'b6\'d4\'cf\'f3\'b5\'c4\'ca\'b1\'ba\'f2\'a3\'ac\'bf\'bd\'b1\'b4\'b8\'a8\'d6\'fa\'ba\'af\'ca\'fd\'bb\'e1retain\'d7\'a1\'d2\'d1\'be\'ad\'bf\'bd\'b1\'b4\'b5\'c4\'b6\'d4\'cf\'f3\'a1\'a3\'bc\'c8\'c8\'bb\'d3\'d0\'d3\'d0copy\'c4\'c7\'c3\'b4\'be\'cd\'d3\'a6\'b8\'c3\'d3\'d0release\'a3\'ac\'d3\'eb Block_copy()\'b6\'d4\'d3\'a6\'b5\'c4\'ba\'af\'ca\'fd\'ca\'c7Block_release()\'a3\'ac\'cb\'fc\'b5\'c4\'d7\'f7\'d3\'c3\'b2\'bb\'d1\'d4\'b6\'f8\'d3\'f7\'a3\'ac\'be\'cd\'ca\'c7\'ca\'cd\'b7\'c5\'ce\'d2\'c3\'c7\'b2\'bb\'d0\'e8\'d2\'aa\'d4\'d9\'ca\'b9\'d3\'c3\'b5\'c4block\'a3\'acblock\'b5\'c4 descriptor\'d6\'d0\'d3\'d0\'d2\'bb\'b8\'f6dispose()\'b8\'a8\'d6\'fa\'ba\'af\'ca\'fd\'a3\'ac\'b8\'c3\'ba\'af\'ca\'fd\'d4\'daBlock_release()\'d6\'d0\'d6\'b4\'d0\'d0\'a3\'ac\'b8\'ba\'d4\'f0\'d7\'f6\'ba\'cdcopy()\'b8\'a8\'d6\'fa\'ba\'af\'ca\'fd\'cf\'e0\'b7\'b4\'b5\'c4\'b2\'d9\'d7\'f7\'a3\'ac\'c0\'fd\'c8\'e7\'ca\'cd\'b7\'c5\'b5\'f4\'cb\'f9\'d3\'d0\'d4\'dablock\'d6\'d0\'bf\'bd\'b1\'b4\'b5\'c4\'b1\'e4\'c1\'bf\'b5\'c8\'a1\'a3
+\f1\fs22 \uc0\u8232 \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+
+\f0\fs28 \'d4\'d9\'c0\'b4\'bf\'b4\'d2\'bb\'b8\'f6\'d0\'a1\'ca\'be\'c0\'fd\'a3\'ba
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 - (\cf11 void\cf0 )exampleC \{\
+    \cf13 NSMutableArray\cf0  *array = [\cf13 NSMutableArray\cf0  \cf13 array\cf0 ];\
+    [\cf11 self\cf0  \cf13 exampleC_addBlockToArray\cf0 :array];\
+    \cf11 void\cf0  (^block)() = [array \cf13 objectAtIndex\cf0 :0];\
+    block(); \cf10 // Hello world!\cf0 \
+\}\
+\
+- (\cf11 void\cf0 )exampleC_addBlockToArray:(\cf13 NSMutableArray\cf0  *)array \{\
+    [array \cf13 addObject\cf0 :^\{\
+        \cf13 NSLog\cf0 (\cf12 @"Hello world!"\cf0 );\
+    \}];\
+\}\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d5\'e2\'b6\'ce\'b4\'fa\'c2\'eb\'d4\'daARC\'ba\'cd\'b7\'c7ARC\'d6\'d0\'b6\'bc\'c4\'dc\'d4\'cb\'d0\'d0\'a3\'ac\'d2\'f2\'ce\'aa ^\{NSLog(@\'a1\'b0Hello world!\'a1\'b1)\} \'d5\'e2\'b8\'f6block\'c3\'bb\'d3\'d0\'d3\'c3\'b5\'bd\'c8\'ce\'ba\'ce\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bf\'a3\'ac\'c4\'c7\'c3\'b4\'b1\'e0\'d2\'eb\'c6\'f7\'bb\'e1\'bd\'ab\'c6\'e4\'b4\'e6\'b4\'a2\'ce\'aa_NSConcreteGlobalBlock, \'c8\'e7\'b9\'fb\'c9\'d4\'ce\'a2\'b8\'c4\'d2\'bb\'cf\'c2\'a3\'ba
+\f1\fs22 \
+- (\cf11 void\cf0 )exampleC_addBlockToArray:(\cf13 NSMutableArray\cf0  *)array \{\
+    \cf11 int\cf0  a;\
+    [array \cf13 addObject\cf0 :^\{\
+        \cf13 NSLog\cf0 (\cf12 @"Hello world! %d"\cf0 , a);\
+    \}];\
+\}\
+
+\f0\fs28 \'d5\'e2\'d1\'f9\'b5\'c4\'bb\'b0\'d4\'daARC\'cf\'c2\'bf\'c9\'d2\'d4\'d5\'fd\'b3\'a3\'d4\'cb\'d0\'d0\'a3\'ac\'d4\'da\'b7\'c7ARC\'cf\'c2\'be\'cd\'bb\'e1crash,  \'d4\'ad\'d2\'f2\'ca\'c7\'d3\'c9\'d3\'da\'d3\'c3\'b5\'bd\'c1\'cb\'be\'d6\'b2\'bf\'b1\'e4\'c1\'bfa, \'d4\'da\'ca\'b9\'d3\'c3MRC\'ca\'b1\'a3\'ac\'d5\'e2\'b8\'f6block\'d4\'da\'d5\'bb\'d6\'d0\'a3\'ac\'d4\'da\'ca\'b9\'d3\'c3ARC\'ca\'b1\'a3\'ac\'d5\'e2\'b8\'f6block\'d4\'da\'b6\'d1\'d6\'d0\'a1\'a3
+\f1\fs22 \
+\uc0\u8232 -------------------------------------------------------------------------------------------------------------------\
+
+\f0\fs28 \'bd\'d3\'cf\'c2\'c0\'b4\'a3\'ac\'ce\'d2\'c3\'c7\'cb\'b5\'d2\'bb\'cf\'c2\'d4\'da\'ca\'b9\'d3\'c3block\'b5\'c4\'b9\'fd\'b3\'cc\'d6\'d0\'be\'ad\'b3\'a3\'d3\'f6\'b5\'bd\'b5\'c4\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'ce\'ca\'cc\'e2\'a3\'ac\'c4\'c7\'c3\'b4\'ca\'b2\'c3\'b4\'ca\'c7\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'a3\'bf\
+\'b2\'e2\'ca\'d4\'bb\'b7\'be\'b3\'a3\'baARC\
+\'ce\'d2\'c3\'c7\'c9\'e8\'bc\'c6\'c1\'bd\'b8\'f6\'c0\'e0\'a3\'acA\'c0\'e0\'ba\'cdB\'c0\'e0\'a3\'acA\'b6\'d4\'cf\'f3\'d6\'d0\'d3\'d0\'ca\'f4\'d0\'d4\'c7\'bf\'d2\'fd\'d3\'c3B\'b6\'d4\'cf\'f3, B\'b6\'d4\'cf\'f3\'d6\'d0\'d3\'d0\'ca\'f4\'d0\'d4\'c7\'bf\'d2\'fd\'d3\'c3A\'b6\'d4\'cf\'f3
+\f1\fs22 \
+
+\f0\fs28 \
+\'c0\'e0A
+\f3\b\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\b0 \cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+#import \cf12 "B.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @interface\cf0  A : \cf13 NSObject\cf0 \
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 strong\cf0 ) \cf13 B\cf0  *b; \cf10 // arc, 
+\f2 \'c4\'ac\'c8\'cf\'d2\'b2\'ca\'c7
+\f1 strong\cf0 \
+\cf11 @end\cf0 \
+\
+\cf11 #import \cf12 "A.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @implementation\cf0  A\
+\
+- (\cf11 void\cf0 )dealloc \{\
+    \cf13 NSLog\cf0 (\cf12 @"A dealloc"\cf0 );\
+\}\
+\cf11 @end\cf0 \
+\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'c0\'e0B
+\f3\b\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\b0 \cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+@class\cf0  \cf13 A\cf0 ; \cf10 // 
+\f2 \'ce\'aa\'c1\'cb\'b7\'c0\'d6\'b9\'cb\'fc\'c3\'c7\'d5\'d2\'b2\'bb\'b5\'bd\'b1\'cb\'b4\'cb\'b5\'c4\'cd\'b7\'ce\'c4\'bc\'fe
+\f1 \cf0 \
+\
+\cf11 @interface\cf0  B : \cf13 NSObject\cf0 \
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 strong\cf0 ) \cf13 A\cf0  *a;\
+\cf11 @end\cf0 \
+\
+\cf11 #import \cf12 "B.h"\cf11 \
+#import \cf12 "A.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @implementation\cf0  B\
+\
+- (\cf11 void\cf0 )dealloc \{\
+    \cf13 NSLog\cf0 (\cf12 @"B dealloc"\cf0 );\
+\}\
+\cf11 @end\cf0 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 main.m
+\f1\b0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 {{\NeXTGraphic 1__#$!@%!#__Pasted Graphic.tiff \width7060 \height6060
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d4\'da\'b5\'da15\'a3\'ac16\'d0\'d0\'b4\'fa\'c2\'eb\'d6\'b4\'d0\'d0\'cd\'ea\'b1\'cf\'ba\'f3\'a3\'ac\'b6\'d4\'cf\'f3\'b5\'c4\'c4\'da\'b4\'e6\'bd\'e1\'b9\'b9\'a3\'a8\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'a3\'a9\'ca\'c7\'d5\'e2\'d1\'f9\'b5\'c4\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic Pasted Graphic 1.tiff \width5580 \height1360
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d4\'da\'b5\'da18, 19\'d0\'d0\'b4\'fa\'c2\'eb\'d6\'b4\'d0\'d0\'cd\'ea\'b1\'cf\'ba\'f3\'a3\'ac\'b6\'d4\'cf\'f3\'b5\'c4\'c4\'da\'b4\'e6\'bd\'e1\'b9\'b9\'a3\'a8\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'a3\'a9\'ca\'c7\'d5\'e2\'d1\'f9\'b5\'c4\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic 1__#$!@%!#__Pasted Graphic 2.tiff \width5300 \height1080
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d7\'ee\'ba\'f3\'a3\'ac\'b5\'b1a\'ba\'cdb\'bd\'e1\'ca\'f8\'c1\'cb\'d7\'f7\'d3\'c3\'d3\'f2\'a3\'a8\'b0\'fc\'ba\'aca\'b5\'c4\'b4\'f3\'c0\'a8\'ba\'c5\'d7\'f7\'d3\'c3\'d3\'f2\'a3\'a9\'ba\'f3\'a3\'ac\'c6\'e4\'c4\'da\'b4\'e6\'bd\'e1\'b9\'b9\'ca\'c7\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic 1__#$!@%!#__Pasted Graphic 3.tiff \width5380 \height1160
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \CocoaLigature0 \'d2\'b2\'be\'cd\'ca\'c7\'cb\'b5\'a3\'ac\'c6\'e4\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'d4\'da\'bd\'e1\'ca\'f8\'c6\'e4\'d7\'f7\'d3\'c3\'d3\'f2\'ba\'f3\'b2\'a2\'c3\'bb\'d3\'d0\'ce\'aa0, \'b5\'bc\'d6\'c2\'c4\'da\'b4\'e6\'d0\'b9\'c2\'b6\'a3\'a8a, b \'b5\'c4dealloc\'b7\'bd\'b7\'a8\'b8\'f9\'b1\'be\'c3\'bb\'d3\'d0\'d6\'b4\'d0\'d0\'a3\'a9\'ce\'ca\'cc\'e2\'b5\'c4\'d4\'ad\'d2\'f2\'d2\'bb\'c4\'bf\'c1\'cb\'c8\'bb\'a1\'a3\
+\'bc\'d9\'c8\'e7\'ce\'d2\'c3\'c7\'b0\'d1\'b5\'da18,19\'d0\'d0\'b5\'c4\'c6\'e4\'d6\'d0\'d2\'bb\'d0\'d0\'b4\'fa\'c2\'eb\'d7\'a2\'ca\'cd\'b5\'f4\'a3\'ac\'be\'cd\'b2\'bb\'bb\'e1\'b3\'f6\'cf\'d6\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'ce\'ca\'cc\'e2\'a3\'ac\'b3\'cc\'d0\'f2\'bb\'e1\'b0\'d1a\'ba\'cdb\'b5\'c4dealloc\'d6\'b4\'d0\'d0\'a1\'a3\
+\'bb\'f2\'d5\'df\'a3\'ac\'ce\'d2\'c3\'c7\'b0\'d1a\'bb\'f2b\'b5\'c4\'c7\'bf\'d2\'fd\'d3\'c3\'b6\'d4\'b7\'bd\'b5\'c4\'ca\'f4\'d0\'d4\'b8\'e3\'b3\'c9\'c8\'f5\'d2\'fd\'d3\'c3\'a3\'ac\'b1\'c8\'c8\'e7\'a3\'ba
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @interface\cf0  B : \cf13 NSObject\cf0 \
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 weak\cf0 ) \cf13 A\cf0  *a;\
+\cf11 @end\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'b0\'d1strong\'b8\'c4\'ce\'aaweak, \'d5\'e2\'d1\'f9\'d2\'b2\'ca\'c7\'bf\'c9\'d2\'d4\'b5\'c4\'a1\'a3
+\f1\fs22 \uc0\u8232 -------------------------------------------------------------------------------------------------------------------\
+
+\f0\fs28 \'ba\'c3\'a3\'ac\'ce\'d2\'c3\'c7\'cc\'b8\'b5\'bd\'c1\'cbweak, \'b8\'c4\'b3\'c9weak\'be\'cd\'bf\'c9\'d2\'d4\'c1\'cb\'a3\'ac\'c4\'c7\'c3\'b4\'ca\'b2\'c3\'b4\'ca\'c7weak?\
+weak\'ca\'c7\'c8\'f5\'d2\'fd\'d3\'c3\'a3\'ac\'bc\'b4\'b2\'bb\'b6\'d4\'b6\'d4\'cf\'f3\'b3\'d6\'d3\'d0\'a3\'acweak\'cf\'e0\'b6\'d4\'d3\'daassign\'d3\'d0\'d2\'bb\'b8\'f6\'ba\'c3\'b4\'a6\'ca\'c7\'a3\'ba\'b5\'b1\'cb\'fc\'cb\'f9\'d6\'b8\'cf\'f2\'b5\'c4\'b6\'d4\'cf\'f3\'cf\'fb\'ca\'a7\'ca\'b1\'a3\'ac\'cb\'fc\'bb\'e1\'b0\'d1\'d6\'b8\'d5\'eb\'d7\'d4\'b6\'af\'d6\'c3\'ce\'aanil, \'cf\'e0\'b6\'d4\'d3\'daassign, \'d2\'aa\'b0\'b2\'c8\'ab\'d0\'a9\'a1\'a3\
+\'b4\'fa\'c2\'eb\'ca\'be\'c0\'fd(ARC)\'a3\'ba\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf10 // __weak\'b1\'ea\'ca\'b6\'d6\'b8\'d5\'eb\'a3\'ac\'c8\'e7\'b9\'fb\'b6\'d4\'cf\'f3\'cf\'fb\'ca\'a7\'b5\'c4\'ca\'b1\'ba\'f2\'bb\'e1\'d7\'d4\'b6\'af\'d6\'c3\'ce\'aanil
+\f1\fs22 \cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+int\cf0  main(\cf11 int\cf0  argc, \cf11 const\cf0  \cf11 char\cf0  * argv[]) \{\
+    \cf11 @autoreleasepool\cf0  \{\
+        \cf11 id\cf0  \cf11 __weak\cf0  obj0 = \cf11 nil\cf0 ;\
+        \cf11 if\cf0  (\cf11 YES\cf0 ) \{\
+            \cf11 id\cf0  obj1 = [[\cf13 NSObject\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+            obj0 = obj1;\
+            \cf13 NSLog\cf0 (\cf12 @"obj0: %@"\cf0 , obj0);  \cf10 // obj0: <NSObject: 0x100200220>\cf0 \
+        \}\
+        \cf13 NSLog\cf0 (\cf12 @"obj0: %@"\cf0 , obj0); \cf10 // obj0: (null)\cf0 \
+    \}\
+    \cf11 return\cf0  0;\
+\}\
+\cf10 /*\
+ *  
+\f2 \'d2\'f2\'ce\'aa
+\f1 obj1
+\f2 \'c9\'fa\'b3\'c9\'ca\'b1\'c4\'ac\'c8\'cf\'ce\'aa\'c7\'bf\'d2\'fd\'d3\'c3
+\f1 (__strong)
+\f2 \'a3\'ac\'d4\'da\'b3\'ac\'b3\'f6
+\f1 if
+\f2 \'b5\'c4\'d7\'f7\'d3\'c3\'d3\'f2\'d6\'ae\'ba\'f3\'a3\'ac
+\f1 obj1
+\f2 \'cb\'f9\'b3\'d6\'d3\'d0\'b5\'c4\'b6\'d4\'cf\'f3\'b1\'bb\'ca\'cd\'b7\'c5
+\f1 (obj1
+\f2 \'be\'cd\'ca\'c7\'d4\'da
+\f1 if
+\f2 \'d3\'ef\'be\'e4\'d5\'e2\'b8\'f6\'b4\'f3\'c0\'a8\'ba\'c5\'b4\'fa\'c2\'eb\'bf\'e9\'d6\'d0\'c9\'fa\'b3\'c9\'b5\'c4\'a3\'ac\'cb\'f9\'d2\'d4\'d5\'e2\'b8\'f6
+\f1 if
+\f2 \'d3\'ef\'c6\'f8\'be\'cd\'ca\'c7\'cb\'fc\'b5\'c4\'c9\'fa\'c3\'fc\'d6\'dc\'c6\'da
+\f1 )\
+ *  obj0
+\f2 \'ce\'aa\'c8\'f5\'d2\'fd\'d3\'c3\'a3\'ac\'cb\'f9\'d2\'d4
+\f1 obj0
+\f2 \'b2\'bb\'b3\'d6\'d3\'d0\'b6\'d4\'cf\'f3\'a3\'ac\'d4\'da
+\f1 obj1
+\f2 \'b6\'d4\'cf\'f3\'ca\'cd\'b7\'c5\'ba\'f3\'a3\'ac
+\f1 obj0
+\f2 \'d7\'d4\'b6\'af\'b5\'c4\'b1\'bb\'b8\'b3\'d6\'b5\'ce\'aa
+\f1 nil\
+ *  
+\f2 \'c8\'f5\'d2\'fd\'d3\'c3\'b5\'c4\'cc\'d8\'d0\'d4\'ca\'c7\'a3\'ac\'b2\'bb\'b3\'d6\'d3\'d0\'b6\'d4\'cf\'f3\'a3\'ac\'bc\'b4\'b1\'e3\'ca\'c7\'d0\'b4\'b3\'c9
+\f1 id __weak obj1 = [[NSObject alloc] init];\
+ *  
+\f2 \'b4\'cb\'b4\'fa\'c2\'eb\'cf\'b5\'cd\'b3\'bb\'e1\'b8\'f8\'d3\'eb\'be\'af\'b8\'e6\'a3\'ac\'d2\'f2\'ce\'aa\'d5\'e2\'c0\'ef
+\f1 obj1
+\f2 \'b1\'bb\'c9\'f9\'c3\'f7\'b3\'c9\'c8\'f5\'d2\'fd\'d3\'c3\'a3\'ac\'c4\'c7\'c3\'b4\'d4\'da\'b8\'b3\'d6\'b5\'d6\'ae\'ba\'f3\'a3\'ac
+\f1 alloc
+\f2 \'b3\'f6\'c0\'b4\'b5\'c4\'b6\'d4\'cf\'f3\'bb\'e1\'b1\'bb\'c1\'a2\'bc\'b4\'ca\'cd\'b7\'c5\'a1\'a3
+\f1 \
+ */\cf0 \uc0\u8232 -------------------------------------------------------------------------------------------------------------------\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 __weak
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f2 \cf0 \'d4\'d9\'c0\'b4\'a3\'ac\'d4\'da\'ca\'b9\'d3\'c3
+\f1 Block
+\f2 \'b5\'c4\'ca\'b1\'ba\'f2\'a3\'ac\'d2\'b2\'c8\'dd\'d2\'d7\'d2\'fd\'c6\'f0\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3
+\f1 (Retain cycles)\
+
+\f2 \'c9\'e8\'bc\'c6\'c1\'bd\'b8\'f6\'c0\'e0
+\f1 A, B, 
+\f2 \'c6\'e4\'d6\'d0
+\f1 A
+\f2 \'d6\'d0\'d3\'d0\'ca\'f4\'d0\'d4\'b6\'d4
+\f1 B
+\f2 \'b6\'d4\'cf\'f3\'c7\'bf\'d2\'fd\'d3\'c3\'a3\'ac
+\f1 B
+\f2 \'d6\'d0\'d3\'d0\'d2\'bb
+\f1 block:\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f2\b \cf0 \'c0\'e0
+\f3 A
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+#import \cf12 "B.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @interface\cf0  A : \cf13 NSObject\cf0 \
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 ) \cf13 B\cf0  *b;\
+\
+\cf11 @end\cf0 \
+\
+\cf11 #import \cf12 "A.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @implementation\cf0  A\
+\
+- (\cf11 void\cf0 )dealloc \{\
+    \cf13 NSLog\cf0 (\cf12 @"A dealloc"\cf0 );\
+\}\
+\
+\cf11 @end\cf0 \
+\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f2\b \cf0 \'c0\'e0
+\f3 B
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 typedef\cf0  \cf11 void\cf0  (^BlockType)();\
+\
+\cf11 @interface\cf0  B : \cf13 NSObject\cf0 \
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 copy\cf0 ) \cf13 BlockType\cf0  block;\
+- (\cf11 void\cf0 )runBlock;\
+\cf11 @end\cf0 \
+\
+\cf11 #import \cf12 "B.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @implementation\cf0  B\
+\
+- (\cf11 void\cf0 )runBlock \{\
+    \cf11 self\cf0 .\cf13 block\cf0 ();\
+\}\
+\
+- (\cf11 void\cf0 )dealloc \{\
+    \cf13 NSLog\cf0 (\cf12 @"B dealloc"\cf0 );\
+\}\
+\
+\cf11 @end\cf0 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 main.m
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+#import \cf12 "A.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 int\cf0  main(\cf11 int\cf0  argc, \cf11 const\cf0  \cf11 char\cf0  * argv[]) \{\
+    \cf11 @autoreleasepool\cf0  \{\
+        \cf13 A\cf0  *a = [[\cf13 A\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+        \cf13 B\cf0  *b = [[\cf13 B\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+        \
+        \cf13 BlockType\cf0  block = ^() \{\
+            \cf13 NSLog\cf0 (\cf12 @"Hello world!"\cf0 );\
+            \cf10 // NSLog(@"%@", a);\cf0 \
+        \};\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , block);\
+        \
+        b.\cf13 block\cf0  = block;\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , block);\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , b.\cf13 block\cf0 );\
+        a.\cf13 b\cf0  = b;\
+        [a.\cf13 b\cf0  \cf13 runBlock\cf0 ];\
+    \}\
+    \cf11 return\cf0  0;\
+\}\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'ce\'aa\'c1\'cb\'b2\'e2\'ca\'d4\'ca\'c7\'b7\'f1\'d3\'d0\'c4\'da\'b4\'e6\'ce\'ca\'cc\'e2\'a3\'ac\'ce\'d2\'c3\'c7\'b7\'d6\'b1\'f0\'d4\'daA\'ba\'cdB\'d6\'d0\'d0\'b4\'c1\'cbdealloc\'b7\'bd\'b7\'a8\'a3\'ac\'c8\'e7\'b9\'fb\'b6\'d4\'cf\'f3\'ca\'cd\'b7\'c5\'a3\'ac\'d5\'e2\'b8\'f6\'b7\'bd\'b7\'a8\'bb\'e1\'b1\'bb\'b5\'f7\'d3\'c3\'a1\'a3
+\f1\fs22  \
+
+\f0\fs28 \'b3\'cc\'d0\'f2\'b4\'f2\'d3\'a1\'cf\'d4\'ca\'be\'a3\'ba 
+\f1\fs22 \
+<__NSGlobalBlock__: 0x100002090>\
+<__NSGlobalBlock__: 0x100002090>\
+<__NSGlobalBlock__: 0x100002090>\
+Hello world!\
+A dealloc\
+B dealloc\
+
+\f0\fs28 \'d5\'e2\'cb\'b5\'c3\'f7\'ce\'d2\'c3\'c7\'b5\'c4\'b3\'cc\'d0\'f2\'c3\'bb\'d3\'d0\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'b5\'c4\'ce\'ca\'cc\'e2\'ca\'b2\'c3\'b4\'ce\'ca\'cc\'e2\'a3\'bf\'b2\'bb\'b6\'d4\'a3\'ac\'c4\'e3\'cf\'eb\'b6\'e0\'c1\'cb\'a3\'ac\'d2\'f2\'ce\'aa\'a3\'ba\'c8\'e7\'b9\'fb\'b4\'f2\'bf\'aa\'d7\'a2\'ca\'cd\'a3\'ba// NSLog(@"%@", a); \
+\'b4\'f2\'d3\'a1\'bd\'e1\'b9\'fb\'be\'cd\'b1\'e4\'b3\'c9\'c1\'cb\'a3\'ba
+\f1\fs22 \
+<__NSMallocBlock__: 0x1004027e0>\uc0\u8232 <__NSMallocBlock__: 0x1004027e0>\
+<__NSMallocBlock__: 0x1004027e0>\
+Hello world!\
+\
+
+\f0\fs28 \'d5\'e2\'b4\'ceHello world!A\'ba\'cdB\'b5\'c4dealloc\'b7\'bd\'b7\'a8\'b6\'bc\'c3\'bb\'d3\'d0\'b1\'bb\'b4\'f2\'d3\'a1\'a3\'ac\'cb\'b5\'c3\'f7\'d5\'e2\'c1\'bd\'b8\'f6\'b6\'d4\'cf\'f3\'d1\'b9\'b8\'f9\'be\'cd\'c3\'bb\'ca\'cd\'b7\'c5\'a3\'ac\'b3\'f6\'cf\'d6\'d5\'e2\'d6\'d6\'c7\'e9\'bf\'f6\'b5\'c4\'d4\'ad\'d2\'f2\'be\'cd\'ca\'c7\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'ce\'ca\'cc\'e2\'a3\'ac\'b6\'d4\'cf\'f3a\'b6\'d4\'b6\'d4\'cf\'f3b\'c7\'bf\'d2\'fd\'d3\'c3\'a3\'ac\'b6\'f8\'b6\'d4\'cf\'f3b\'d6\'d0\'d3\'d0\'b8\'f6block: @property(nonatomic, copy) BlockType block; \'ce\'aa\'c1\'cb\'b1\'a3\'d6\'a4block\'b4\'fa\'c2\'eb\'bf\'e9\'d4\'da\'d6\'b4\'d0\'d0\'b5\'c4\'ca\'b1\'ba\'f2\'ca\'c7\'d3\'d0\'d0\'a7\'b5\'c4\'a3\'ac\'ce\'d2<A: 0x100400580>\'c3\'c7\'ca\'b9\'d3\'c3\'b9\'d8\'bc\'fc\'d7\'d6copy\'a3\'ac\'bc\'b4\'b5\'b1\'b8\'f8b.block\'b8\'b3\'d6\'b5\'b5\'c4\'ca\'b1\'ba\'f2\'a3\'ac\'d5\'e2\'b8\'f6\'b4\'fa\'c2\'eb\'bf\'e9\'bf\'bd\'b1\'b4\'b5\'bd\'b6\'d1\'d6\'d0\'a3\'ac\'b6\'f8\'d4\'da\'d5\'e2\'b8\'f6block\'c4\'da\'d2\'fd\'d3\'c3\'c1\'cba, \'cb\'f9\'d2\'d4\'cb\'fc\'c3\'c7\'b6\'bc\'c3\'bb\'d3\'d0\'b5\'c3\'b5\'bd\'ca\'cd\'b7\'c5\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 {{\NeXTGraphic 1__#$!@%!#__Pasted Graphic 4.tiff \width19800 \height2860
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'ca\'b9\'d3\'c3__weak\'be\'cd\'bf\'c9\'d2\'d4\'bd\'e2\'be\'f6\'d5\'e2\'d6\'d6\'ce\'ca\'cc\'e2\'a3\'ba
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 #import \cf12 <Foundation/Foundation.h>\cf11 \
+#import \cf12 "A.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 int\cf0  main(\cf11 int\cf0  argc, \cf11 const\cf0  \cf11 char\cf0  * argv[]) \{\
+    \cf11 @autoreleasepool\cf0  \{\
+        \cf13 A\cf0  *a = [[\cf13 A\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+        \cf13 B\cf0  *b = [[\cf13 B\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+        \
+        
+\f3\b \cf11 __weak\cf0  \cf11 __typeof\cf0 (a)weakA = a;
+\f1\b0 \
+        \cf13 BlockType\cf0  block = ^() \{\
+            \cf13 NSLog\cf0 (\cf12 @"Hello world!"\cf0 );\
+            \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , 
+\f3\b weakA
+\f1\b0 );\
+        \};\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , block);\
+        b.\cf13 block\cf0  = block;\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , block);\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , b.\cf13 block\cf0 );\
+        a.\cf13 b\cf0  = b;\
+        [a.\cf13 b\cf0  \cf13 runBlock\cf0 ];\
+    \}\
+    \cf11 return\cf0  0;\
+\}\
+\
+
+\f2 \'d5\'e2\'d1\'f9\'be\'cd\'b6\'d4\'c1\'cb\'a3\'ba
+\f1 \
+<__NSMallocBlock__: 0x100102510>\
+<__NSMallocBlock__: 0x100102510>\
+<__NSMallocBlock__: 0x100102510>\
+Hello world!\
+<A: 0x1001023f0>\
+A dealloc\uc0\u8232 B dealloc\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 __weak\'b8\'e6\'cb\'df\'b1\'e0\'d2\'eb\'c6\'f7\'a3\'ba\'b2\'bb\'d2\'aa\'d4\'dablock\'c0\'ef\'c3\'e6\'b8\'f8\'ce\'d2\'c7\'bf\'a3\'ac\'ce\'d2\'d2\'aa\'c8\'f5\'a3\'a1
+\f1\fs22 \
+\
+-------------------------------------------------------------------------------------------------------------------\
+
+\f0\fs28 \'cf\'c2\'c3\'e6\'ce\'d2\'c3\'c7\'bd\'a8\'d2\'bb\'b8\'f6\'b4\'f3\'d2\'bb\'b5\'e3\'b5\'c4\'cf\'ee\'c4\'bf\'a3\'aciOS\'cf\'ee\'c4\'bf\'a3\'ac\'ce\'d2\'c3\'c7\'d6\'aa\'b5\'c0\'a3\'ac\'d4\'da\'b5\'bc\'ba\'bd\'bf\'d8\'d6\'c6\'c6\'f7\'d6\'d0\'a3\'ac\'b5\'b1\'ce\'d2\'c3\'c7push\'bd\'f8\'c0\'b4\'d2\'bb\'b8\'f6\'ca\'d3\'cd\'bc\'bf\'d8\'d6\'c6\'c6\'f7A\'ca\'b1\'a3\'acA\'b1\'bb\'d1\'b9\'d5\'bb\'a3\'ac\'d4\'da\'b5\'bc\'ba\'bd\'bf\'d8\'d6\'c6\'c6\'f7\'b5\'c4\'d5\'bb\'b6\'a5\'a3\'ac\'b5\'b1\'ce\'d2\'c3\'c7pop\'b5\'c4\'ca\'b1\'ba\'f2\'a3\'ac\'d5\'bb\'b6\'a5\'b3\'f6\'d5\'bb\'a3\'ac\'c8\'e7\'b9\'fb\'c4\'da\'b4\'e6\'b9\'dc\'c0\'ed\'c3\'bb\'d3\'d0\'ce\'ca\'cc\'e2\'a3\'ac\'c4\'c7\'c3\'b4A\'b5\'c4dealloc\'b7\'bd\'b7\'a8\'be\'cd\'d3\'a6\'b5\'b1\'b1\'bb\'b5\'f7\'d3\'c3\'a3\'ac\'ce\'d2\'c3\'c7\'d2\'d4\'b4\'cbdealloc\'ca\'c7\'b7\'f1\'b4\'f2\'d3\'a1\'c0\'b4\'b2\'e2\'ca\'d4\'ce\'d2\'c3\'c7\'b5\'c4\'b3\'cc\'d0\'f2\'ca\'c7\'b7\'f1\'d3\'d0\'c4\'da\'b4\'e6\'ce\'ca\'cc\'e2\'a3\'ac\'d5\'e2\'b4\'ce\'ce\'d2\'c3\'c7\'d7\'f6\'d2\'bb\'b8\'f6\'b5\'bc\'ba\'bd\'bf\'d8\'d6\'c6\'c6\'f7\'a3\'ac\'bf\'d8\'d6\'c6\'d7\'c5FirstViewController(\'b5\'da\'d2\'bb\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7), SecondViewController(\'b5\'da\'b6\'fe\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7), \'c6\'e4\'d6\'d0FirstViewController\'ca\'c7\'b5\'bc\'ba\'bd\'bf\'d8\'d6\'c6\'c6\'f7\'b5\'c4rootViewController, \'d4\'daFirstViewController\'d6\'d0\'d3\'d0\'d2\'bb\'b8\'f6\'b0\'b4\'c5\'a5\'a3\'ac\'b5\'e3\'bb\'f7\'d5\'e2\'b8\'f6\'b0\'b4\'c5\'a5(push)\'bd\'f8\'c8\'eb\'b5\'bd\'b5\'da\'b6\'fe\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7SecondViewController, \'d4\'da\'b5\'da\'b6\'fe\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7\'c9\'cf\'d2\'b2\'d3\'d0\'d2\'bb\'b8\'f6\'b0\'b4\'c5\'a5\'a3\'ac\'b5\'e3\'bb\'f7\'d5\'e2\'b8\'f6\'b0\'b4\'c5\'a5\'b7\'b5\'bb\'d8\'b5\'bd\'b5\'da\'d2\'bb\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7(pop)\'a3\'ac\'c8\'e7\'b9\'fb\'c3\'bb\'d3\'d0\'ce\'ca\'cc\'e2\'b5\'c4\'bb\'b0\'a3\'ac\'b5\'b1pop\'ba\'f3\'a3\'ac\'b5\'da\'b6\'fe\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7\'b6\'d4\'cf\'f3\'be\'cd\'bb\'e1\'b1\'bb\'ca\'cd\'b7\'c5\'a3\'ac\'cb\'fc\'b5\'c4dealloc\'be\'cd\'bb\'e1\'b1\'bb\'d6\'b4\'d0\'d0\'a1\'a3\'ce\'aa\'c1\'cb\'d1\'dd\'ca\'be\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'b5\'c4\'c7\'e9\'bf\'f6\'a3\'ac\'ce\'d2\'c3\'c7\'d7\'f6\'d2\'bb\'b8\'f6\'b4\'f8block\'bb\'d8\'b5\'f7\'b5\'c4\'b0\'b4\'c5\'a5\'a3\'ac\'b4\'fa\'c2\'eb\'ca\'be\'c0\'fd\'a3\'ba
+\f1\fs22 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 BlockButton\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\b0 \cf11 #import \cf12 <UIKit/UIKit.h>\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @interface\cf0  BlockButton : \cf13 UIButton\cf0 \
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 copy\cf0 ) \cf11 void\cf0  (^clickHandler)(\cf13 BlockButton\cf0  *button);\
+\cf11 @end\cf0 \
+\
+\cf11 #import \cf12 "BlockButton.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @implementation\cf0  BlockButton\
+\
+- (\cf11 instancetype\cf0 )initWithFrame:(\cf13 CGRect\cf0 )frame \{\
+    \cf11 if\cf0  (\cf11 self\cf0  = [\cf11 super\cf0  \cf13 initWithFrame\cf0 :frame]) \{\
+        [\cf11 self\cf0  \cf13 addTarget\cf0 :\cf11 self\cf0  \cf13 action\cf0 :\cf11 @selector\cf0 (test:) \cf13 forControlEvents\cf0 :\cf13 UIControlEventTouchUpInside\cf0 ]; \cf10 // 
+\f2 \'b2\'bb\'b1\'d8\'b5\'a3\'d0\'c4\'d5\'e2\'b8\'f6\'b7\'bd\'b7\'a8\'bb\'e1\'b2\'bb\'bb\'e1\'b6\'d4
+\f1 target(self)
+\f2 \'c7\'bf\'d2\'fd\'d3\'c3\'a3\'ac\'d2\'f2\'ce\'aa\'c6\'bb\'b9\'fb\'b9\'d9\'b7\'bd\'ce\'c4\'b5\'b5\'cb\'b5\'a3\'ba
+\f1 the target is not retained.\cf0 \
+    \}\
+    \cf11 return\cf0  \cf11 self\cf0 ;\
+\}\
+\
+- (\cf11 void\cf0 )test:(\cf11 id\cf0 )sender \{\
+    \cf11 if\cf0  (\cf11 self\cf0 .\cf13 clickHandler\cf0 ) \{\
+        \cf11 self\cf0 .\cf13 clickHandler\cf0 (\cf11 self\cf0 );\
+    \}\
+\}\
+\
+- (\cf11 void\cf0 )dealloc \{\
+    \cf13 NSLog\cf0 (\cf12 @"BlockButton dealloc"\cf0 );\
+\}\
+\
+\cf11 @end\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 --------------------\cf11 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 FirstViewController\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\b0 \cf11 #import \cf12 <UIKit/UIKit.h>\cf0 \
+\cf11 @interface\cf0  FirstViewController : \cf13 UIViewController\cf0 \
+\cf11 @end\cf0 \
+\
+\cf11 #import \cf12 "FirstViewController.h"\cf11 \
+#import \cf12 "SecondViewController.h"\cf0 \
+\
+\cf11 @implementation\cf0  FirstViewController\
+\
+- (\cf11 void\cf0 )viewDidLoad \{\
+    [\cf11 super\cf0  \cf13 viewDidLoad\cf0 ];\
+\}\
+\
+- (\cf11 IBAction\cf0 )push:(\cf11 id\cf0 )sender \{\
+    \cf13 SecondViewController\cf0  *controller = [[\cf13 SecondViewController\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+    [\cf11 self\cf0 .\cf13 navigationController\cf0  \cf13 pushViewController\cf0 :controller \cf13 animated\cf0 :\cf11 YES\cf0 ];\
+\}\
+\
+\cf11 @end\cf0 \
+--------------------\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 SecondViewController
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 #import \cf12 <UIKit/UIKit.h>\cf0 \
+\cf11 @interface\cf0  SecondViewController : \cf13 UIViewController\cf0 \
+\cf11 @end\
+\
+#import \cf12 "SecondViewController.h"\cf11 \
+#import \cf12 "BlockButton.h"\
+\cf11 @implementation\cf0  SecondViewController\
+\
+- (\cf11 void\cf0 )viewDidLoad \{\
+    [\cf11 super\cf0  \cf13 viewDidLoad\cf0 ];\
+    \cf11 self\cf0 .\cf13 view\cf0 .\cf13 backgroundColor\cf0  = [\cf13 UIColor\cf0  \cf13 whiteColor\cf0 ];\
+    \
+    [\cf11 self\cf0  \cf13 test1\cf0 ];\
+\}\
+\
+- (\cf11 void\cf0 )test1 \{\
+    \cf11 void\cf0  (^testBlock)() = ^\{\
+        \cf11 self\cf0 .\cf13 view\cf0 .\cf13 backgroundColor\cf0  = [\cf13 UIColor\cf0  \cf13 cyanColor\cf0 ]; \cf10 // 
+\f2 \'d5\'e2\'b8\'f6
+\f1 testBlock
+\f2 \'cb\'e4\'c8\'bb\'ca\'c7
+\f1 __NSMallocBlock__
+\f2 \'a3\'ac\'b7\'c5\'d4\'da\'b6\'d1\'d6\'d0\'a3\'ac\'b6\'f8\'c7\'d2\'d5\'e2\'be\'e4\'b4\'fa\'c2\'eb\'d3\'c3\'b5\'bd\'c1\'cb
+\f1 self, 
+\f2 \'b5\'ab\'cb\'fc\'b2\'a2\'c3\'bb\'d3\'d0\'d2\'fd\'c6\'f0\'d1\'ad\'bb\'b7\'d2\'fd\'d3\'c3\'a3\'ac\'bc\'b4\'d5\'e2\'d6\'d6\'d0\'b4\'b7\'a8\'ca\'c7\'bf\'c9\'d2\'d4\'b5\'c4
+\f1 \cf0 \
+    \};\
+    testBlock();\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , testBlock); \cf10 // __NSMallocBlock__\cf0 \
+\} \cf10 // 
+\f2 \'b3\'f6\'b8\'f6\'d5\'e2\'b8\'f6\'d7\'f7\'d3\'c3\'d3\'f2\'a3\'ac
+\f1 testBlock
+\f2 \'d7\'d4\'d0\'d0\'cf\'fb\'ca\'a7
+\f1 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 - (\cf11 void\cf0 )dealloc \{\
+    \cf13 NSLog\cf0 (\cf12 @"SecondViewController dealloc"\cf0 );\
+\}\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @end\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \
+\'b5\'e3\'bb\'f7\'b5\'da\'d2\'bb\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7\'c9\'cf\'b5\'c4\'b0\'b4\'c5\'a5push\'b5\'bd\'b5\'da\'b6\'fe\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7\'a3\'ac\'d4\'daviewDidLoad\'d6\'d0\'ce\'d2\'c3\'c7\'d0\'b4\'c1\'cb\'d2\'bb\'b8\'f6\'b7\'bd\'b7\'a8test1, \'d5\'e2\'d6\'d6\'d0\'b4\'b7\'a8\'c3\'bb\'d3\'d0\'ce\'ca\'cc\'e2\'a3\'ac\'b5\'b1\'b5\'e3\'bb\'f7\'b5\'da\'b6\'fe\'b8\'f6\'bf\'d8\'d6\'c6\'c6\'f7\'b5\'c4\'b7\'b5\'bb\'d8\'b0\'b4\'c5\'a5\'ca\'b1\'a3\'acSecondViewController\'b5\'c4dealloc\'b7\'bd\'b7\'a8\'b1\'bb\'b5\'f7\'d3\'c3\'a1\'a3\
+\'cf\'c2\'c3\'e6\'ce\'d2\'c3\'c7\'c0\'b4\'d0\'b4\'d2\'bb\'b8\'f6\'d3\'d0\'ce\'ca\'cc\'e2\'b5\'c4\'a3\'ba
+\f1\fs22 \
+- (\cf11 void\cf0 )test2 \{\
+    \cf13 BlockButton\cf0  *blockButton = [\cf13 BlockButton\cf0  \cf13 buttonWithType\cf0 :\cf13 UIButtonTypeSystem\cf0 ];\
+    blockButton.\cf13 frame\cf0         = \cf13 CGRectMake\cf0 (20, 100, \cf11 self\cf0 .\cf13 view\cf0 .\cf13 frame\cf0 .\cf13 size\cf0 .\cf13 width\cf0 -40, 40);\
+    [blockButton \cf13 setClickHandler\cf0 :^(\cf13 BlockButton\cf0  *button) \{\
+        \cf11 self\cf0 .\cf13 view\cf0 .\cf13 backgroundColor\cf0  = [\cf13 UIColor\cf0  \cf13 yellowColor\cf0 ]; \cf10 // 
+\f2 \'d5\'e2\'c0\'ef\'be\'cd\'d2\'fd\'c6\'f0\'c1\'cb
+\f1 retain cycle\cf0 \
+    \}];\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , blockButton.\cf13 clickHandler\cf0 ); \cf10 // __NSMallocBlock__\cf0 \
+    \
+    [blockButton \cf13 setTitle\cf0 :\cf12 @"Block Button"\cf0  \cf13 forState\cf0 :\cf13 UIControlStateNormal\cf0 ];\
+    [\cf11 self\cf0 .\cf13 view\cf0  \cf13 addSubview\cf0 :blockButton];\
+\}\
+
+\f0\fs28 \'b5\'b1\'ce\'d2\'c3\'c7\'bd\'f8\'b5\'bdSecondViewController\'b5\'e3\'bb\'f7blockButton\'a3\'ac\'d4\'d9\'b5\'e3\'bb\'f7\'b7\'b5\'bb\'d8\'b0\'b4\'c5\'a5\'bb\'d8\'c8\'a5(pop)\'a3\'ac\'d5\'e2\'ca\'b1\'ba\'f2SeconViewController\'b5\'c4dealloc\'b7\'bd\'b7\'a8\'be\'cd\'b2\'bb\'bb\'e1\'b1\'bb\'b5\'f7\'d3\'c3\'c1\'cb\'a3\'ac\'b6\'f8\'c7\'d2blockButton\'b5\'c4dealloc\'d2\'b2\'c3\'bb\'d3\'d0\'b1\'bb\'b4\'f2\'d3\'a1\'a3\'ac\'d5\'e2\'ca\'c7\'d2\'f2\'ce\'aa\'a3\'ba
+\f1\fs22 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature1 {{\NeXTGraphic 1__#$!@%!#__Pasted Graphic 5.tiff \width12420 \height8300
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \CocoaLigature0 \'bd\'e2\'be\'f6\'b7\'bd\'b7\'a8\'cd\'ac\'d1\'f9\'ca\'c7__weak:
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 )weakself = \cf11 self\cf0 ; \cf10 // Or: __weak SecondViewController *weakself = self;\cf0 \
+[blockButton \cf13 setClickHandler\cf0 :^(\cf13 BlockButton\cf0  *button) \{\
+    weakself.\cf13 view\cf0 .\cf13 backgroundColor\cf0  = [\cf13 UIColor\cf0  \cf13 yellowColor\cf0 ];\
+\}];\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'b6\'f8\'c7\'d2\'a3\'ac\'d3\'d0\'b5\'e3\'bf\'e4\'d5\'c5\'b5\'c4\'ca\'c7\'a3\'ac\'b2\'bb\'bd\'f6\'ca\'c7\'d4\'dablockButton\'d6\'d0\'d2\'fd\'d3\'c3self\'bb\'e1\'b3\'f6\'cf\'d6\'ce\'ca\'cc\'e2\'a3\'ac\'c4\'c4\'c5\'c2\'ca\'c7\'d2\'fd\'d3\'c3\'d2\'bb\'b8\'f6\'b3\'c9\'d4\'b1\'b1\'e4\'c1\'bf\'a3\'ac\'d2\'b2\'bb\'e1\'d3\'f6\'b5\'bd\'cd\'ac\'d1\'f9\'b5\'c4\'ce\'ca\'cc\'e2\'a3\'ba
+\f1\fs22 \
+- (\cf11 void\cf0 )test2 \{\
+    \cf13 BlockButton\cf0  *blockButton = [\cf13 BlockButton\cf0  \cf13 buttonWithType\cf0 :\cf13 UIButtonTypeSystem\cf0 ];\
+    blockButton.\cf13 frame\cf0         = \cf13 CGRectMake\cf0 (20, 100, \cf11 self\cf0 .\cf13 view\cf0 .\cf13 frame\cf0 .\cf13 size\cf0 .\cf13 width\cf0 -40, 40);\
+    \
+    [blockButton \cf13 setClickHandler\cf0 :^(\cf13 BlockButton\cf0  *button) \{\
+        \cf13 _num\cf0  = 100; \cf10 // 
+\f2 \'d5\'e2\'d6\'d6\'d0\'b4\'b7\'a8\'ca\'c7\'d3\'d0\'ce\'ca\'cc\'e2\'b5\'c4\'a3\'ac
+\f1 _num
+\f2 \'c6\'e4\'ca\'b5\'be\'cd\'ca\'c7
+\f1 self->_num\cf0 \
+    \}];\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , blockButton.\cf13 clickHandler\cf0 ); \cf10 // __NSMallocBlock__\cf0 \
+    \
+    [blockButton \cf13 setTitle\cf0 :\cf12 @"Block Button"\cf0  \cf13 forState\cf0 :\cf13 UIControlStateNormal\cf0 ];\
+    [\cf11 self\cf0 .\cf13 view\cf0  \cf13 addSubview\cf0 :blockButton];\
+\}\
+\
+
+\f0\fs28 \'d0\'de\'b8\'c4\'b7\'bd\'b0\'b8:
+\f1\fs22 \
+- (\cf11 void\cf0 )test2 \{\
+    \cf13 BlockButton\cf0  *blockButton = [\cf13 BlockButton\cf0  \cf13 buttonWithType\cf0 :\cf13 UIButtonTypeSystem\cf0 ];\
+    blockButton.\cf13 frame\cf0         = \cf13 CGRectMake\cf0 (20, 100, \cf11 self\cf0 .\cf13 view\cf0 .\cf13 frame\cf0 .\cf13 size\cf0 .\cf13 width\cf0 -40, 40);\
+\
+    \cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 )weakself = \cf11 self\cf0 ;\
+    [blockButton \cf13 setClickHandler\cf0 :^(\cf13 BlockButton\cf0  *button) \{\
+        \cf13 SecondViewController\cf0  *keeper = weakself;\
+        keeper->\cf13 _num\cf0  = 100;\
+        \cf10 // weakself->_num = 100;\cf0 \
+        \cf10 // Dereferencing a __weak pointer is not allowed due to possible null value caused by race condition, assign it to strong variable first\cf0 \
+        \cf10 // {\field{\*\fldinst{HYPERLINK "http://stackoverflow.com/questions/17824459/dereferencing-a-weak-pointer-is-not-allowed-inside-block"}}{\fldrslt \cf11 http://stackoverflow.com/questions/17824459/dereferencing-a-weak-pointer-is-not-allowed-inside-block}}\cf0 \
+    \}];\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , blockButton.\cf13 clickHandler\cf0 ); \cf10 // __NSMallocBlock__\cf0 \
+    \
+    [blockButton \cf13 setTitle\cf0 :\cf12 @"Block Button"\cf0  \cf13 forState\cf0 :\cf13 UIControlStateNormal\cf0 ];\
+    [\cf11 self\cf0 .\cf13 view\cf0  \cf13 addSubview\cf0 :blockButton];\
+\}\
+\
+
+\f0\fs28 \'bb\'f2\'d5\'df\'ca\'c7\'a3\'ac\'ce\'d2\'c3\'c7\'b8\'fc\'b6\'e0\'b5\'c4\'d5\'e2\'d1\'f9\'d0\'b4\'a3\'ba
+\f1\fs22 \
+\
+- (\cf11 void\cf0 )test2 \{\
+    \cf13 BlockButton\cf0  *blockButton = [\cf13 BlockButton\cf0  \cf13 buttonWithType\cf0 :\cf13 UIButtonTypeSystem\cf0 ];\
+    blockButton.\cf13 frame\cf0         = \cf13 CGRectMake\cf0 (20, 100, \cf11 self\cf0 .\cf13 view\cf0 .\cf13 frame\cf0 .\cf13 size\cf0 .\cf13 width\cf0 -40, 40);\
+    \
+    \cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 )weakself = \cf11 self\cf0 ;\
+    [blockButton \cf13 setClickHandler\cf0 :^(\cf13 BlockButton\cf0  *button) \{\
+        \cf11 __strong\cf0  \cf11 __typeof\cf0 (weakself) strongself = weakself; // 
+\f2 \'d5\'e2\'c0\'ef\'b5\'c4__strong\'b2\'bb\'bb\'e1\'d4\'da\'d5\'e2\'b8\'f6\'c9\'f9\'c3\'f7block\'b5\'c4\'ca\'b1\'ba\'f2\'c7\'bf\'d2\'fd\'d3\'c3self\'a3\'ac\'bc\'cc\'d0\'f8\'d7\'a1\'cf\'c2\'bf\'b4
+\f1 \
+        \cf11 if\cf0  (strongself) \{\
+            strongself->\cf13 _num\cf0  = 100;\
+        \}\
+    \}];\
+    \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , blockButton.\cf13 clickHandler\cf0 ); \cf10 // __NSMallocBlock__\cf0 \
+    \
+    [blockButton \cf13 setTitle\cf0 :\cf12 @"Block Button"\cf0  \cf13 forState\cf0 :\cf13 UIControlStateNormal\cf0 ];\
+    [\cf11 self\cf0 .\cf13 view\cf0  \cf13 addSubview\cf0 :blockButton];\
+\}\
+-------------------------------------------------------------------------------------------------------------------\
+
+\f0\fs28 \'b2\'ce\'bf\'bc\'a3\'ba\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+{\field{\*\fldinst{HYPERLINK "https://github.com/objc-zen/objc-zen-book#retain-cycles-on-self"}}{\fldrslt \cf0 https://github.com/objc-zen/objc-zen-book#retain-cycles-on-self}}\
+\'d4\'da\'c9\'cf\'c3\'e6\'b5\'c4\'c0\'fd\'d7\'d3\'d6\'d0\'d3\'d0\'cf\'c2\'c3\'e6\'b5\'c4\'b4\'fa\'c2\'eb\'a3\'ba
+\f2\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 SecondViewController *keeper = weakself;\
+\'ba\'cd
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __strong\cf0  \cf11 __typeof\cf0 (weakself) strongself = weakself;
+\f2 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d5\'e2\'c1\'bd\'be\'e4\'b5\'c4\'b4\'fa\'c2\'eb\'ca\'c7\'d4\'dabock\'c4\'da\'b2\'bf\'d4\'d9\'b6\'d4\'b5\'b1\'c7\'b0\'b6\'d4\'cf\'f3\'bd\'f8\'d0\'d0\'b3\'d6\'d3\'d0\'a3\'ac\'d2\'d4\'b7\'c0\'d6\'b9\'d4\'dablock\'d6\'b4\'d0\'d0\'b5\'c4\'ca\'b1\'ba\'f2\'bf\'c9\'c4\'dcself\'b1\'bb\'cc\'e1\'c7\'b0\'ca\'cd\'b7\'c5\'b5\'c4\'c7\'e9\'bf\'f6\'a3\'ac\'a3\'bd\'d3\'d2\'b2\'e0\'b5\'c4weakself\'b2\'bb\'c4\'dc\'d0\'b4\'ce\'aaself\'a1\'a3\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f2\fs22 \cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'d4\'da\'c9\'cf\'c3\'e6\'d5\'e2\'b8\'f6\'b2\'ce\'bf\'bc\'b5\'c4\'c1\'b4\'bd\'d3\'d6\'d0\'d3\'d0\'ba\'dc\'ba\'c3\'b5\'c4\'b4\'f0\'b0\'b8\'a3\'ac\'ce\'d2\'be\'cd\'d6\'b1\'bd\'d3\'b0\'d1\'c6\'e4\'d6\'d0\'b5\'c4\'b6\'ab\'ce\'f7\'d5\'b3\'b9\'fd\'c0\'b4\'a3\'ba
+\f2\fs22 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 If we use directly the keyword self inside a block, the object(self) is retained at block declaration time within the block, A const reference to self has its place inside the block and this affects the reference counting of the object. If the block is used by other classes and/or passed around we may want to retain self as well as all the other objects used by the block since they are needed for the execution of the block. \kerning1\expnd0\expndtw0 \CocoaLigature0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf13 dispatch_block_t\cf0  completionBlock = ^\{\
+    NSLog(\cf12 @"%@"\cf0 , \cf11 self\cf0 );\
+\}\
+\
+MyViewController *myController = [[MyViewController alloc] init...];\
+[\cf11 self\cf0  presentViewController:myController\
+                   animated:\cf11 YES\cf0 \
+                 completion:completionHandler];\
+\
+No big deal. But... what if the block is retained by self in a property (as the following example) and therefore the object (self) retains the block?\
+self.completionHandler = ^\{\
+    NSLog(@"%@", self);\
+\}\
+\
+MyViewController *myController = [[MyViewController alloc] init...];\
+[\cf11 self\cf0  presentViewController:myController\
+                   animated:\cf11 YES\cf0 \
+                 completion:\cf11 self\cf0 .completionHandler];\
+\pard\pardeftab720\sl280\partightenfactor0
+\cf0 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 This is what is well known as a retain cycle and retain cycles usually should be avoided. The warning we receive from CLANG is:\
+Capturing 'self' strongly in this block is likely to lead to a retain cycle\
+Here comes in the __weak qualifier.\
+Declaring a __weak reference to self outside the block and referring to it via this weak reference inside the block avoids retain cycles. This is what we usually want to do if the block is already retained by self in a property.
+\fs32 \
+
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 \kerning1\expnd0\expndtw0 \CocoaLigature0 __weak\cf0  \cf11 typeof\cf0 (\cf11 self\cf0 ) weakSelf = \cf11 self\cf0 ;\
+\cf11 self\cf0 .completionHandler = ^\{\
+    NSLog(\cf12 @"%@"\cf0 , weakSelf);\
+\};\
+\
+MyViewController *myController = [[MyViewController alloc] init...];\
+[\cf11 self\cf0  presentViewController:myController\
+                   animated:\cf11 YES\cf0 \
+                 completion:\cf11 self\cf0 .completionHandler];\
+\
+\pard\pardeftab720\sl280\sa240\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 In this example the block does not retain the object and the object retains the block in a property. Cool. We are sure that we can refer to self safely, at worst, it is nilled out by someone. The question is: how is it possible for self to be "destroyed" (deallocated) within the scope of a block?\
+Consider the case of a block being copied from an object to another (let's say myController) as a result of the assignment(\'b8\'b3\'d6\'b5) of a property. The former object is then released before the copied block has had a chance to execute. \'b4\'f3\'cc\'e5\'d2\'e2\'cb\'bc\'ca\'c7\'a3\'bablock\'b1\'bb\'b8\'b3\'d6\'b5\'b8\'f8\'c1\'cb\'c6\'e4\'cb\'fb\'b6\'d4\'cf\'f3\'a3\'ac\'b5\'ab\'ca\'c7\'d4\'da\'d5\'e2\'b8\'f6block\'b1\'bb\'d6\'b4\'d0\'d0\'c7\'b0\'a3\'acblock\'d6\'d0\'b5\'c4self\'cf\'fb\'ca\'a7\'c1\'cb\'a1\'a3 \'d4\'da\'c9\'cf\'c3\'e6\'b5\'c4\'c0\'fd\'d7\'d3\'d6\'d0\'a3\'accompletionHandler\'d5\'e2\'b8\'f6block\'d6\'d0\'d3\'c3\'b5\'bd\'c1\'cbself(weakself), \'d5\'e2\'b8\'f6block\'b1\'bb\'b8\'b3\'d6\'b5\'b8\'f8\'c1\'cbmyController, \'d4\'damyController\'d6\'d0\'b5\'c4\'c4\'b3\'b8\'f6\'b4\'a5\'b7\'a2\'ca\'c2\'bc\'fe\'d6\'d0\'d6\'b4\'d0\'d0\'d5\'e2\'b8\'f6block, \'b5\'ab\'ca\'c7\'d4\'da\'d5\'e2\'b8\'f6block\'d6\'b4\'d0\'d0\'c7\'b0\'a3\'acblock\'d6\'d0\'b5\'c4\'c4\'c7\'b8\'f6self\'b6\'d4\'cf\'f3\'bf\'c9\'c4\'dc\'d2\'d1\'be\'ad\'cf\'fb\'ca\'a7\'c1\'cb\'a3\'a1\
+The next step is interesting.declaring a __weak reference to self outside the block and use a __strong reference inside the block:You may think, at first, this is a trick to use self inside the block avoiding the retain cycle warning. This is not the case. The strong reference to self is created at block execution time while using self in the block is evaluated at block declaration time, thus retaining the object.{\field{\*\fldinst{HYPERLINK "http://developer.apple.com/library/mac/#releasenotes/ObjectiveC/RN-TransitioningToARC/Introduction/Introduction.html"}}{\fldrslt \ul Apple documentation}} reports that "For non-trivial(\'d6\'d8\'b4\'f3\'b5\'c4\'a3\'ac\'b7\'c7\'d2\'bb\'b0\'e3\'b5\'c4) cycles, however, you should use" this approach: \
+
+\f1\fs22 \uc0\u8232 \kerning1\expnd0\expndtw0 \CocoaLigature0 MyViewController *myController = [[MyViewController alloc] init...];\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf10 // ...\cf0 \
+\cf11 __weak\cf0  MyViewController *weakMyController = myController;\
+myController.completionHandler =  ^(NSInteger result) \{\
+    MyViewController *strongMyController = weakMyController; \cf10 // 
+\f2 \'bb\'f2\'d5\'df\'a3\'ac\'ce\'d2\'c3\'c7\'b8\'fc\'b3\'a3\'bc\'fb\'b5\'c4\'d0\'b4\'b7\'a8\'ca\'c7
+\f1 : __strong __typeof(weakMyController)strongMyController = weakMyController\cf0 \
+    \cf11 if\cf0  (strongMyController) \{\
+        \cf10 // ...\cf0 \
+        [strongMyController dismissViewControllerAnimated:\cf11 YES\cf0  completion:\cf11 nil\cf0 ];\
+        \cf10 // ...\cf0 \
+    \}\
+    \cf11 else\cf0  \{\
+        \cf10 // Probably nothing...\cf0 \
+    \}\
+\};
+\f2 \
+\pard\pardeftab720\sl280\partightenfactor0
+
+\f0\fs28 \cf0 \expnd0\expndtw0\kerning0
+\CocoaLigature1 The real benefit of using the strong reference inside of a block is to be robust(\'c7\'bf\'bd\'a1\'b5\'c4\'a3\'bb\'bd\'a1\'bf\'b5\'b5\'c4\'a3\'bb\'b4\'d6\'d2\'b0\'b5\'c4\'a3\'bb\'b4\'d6\'c2\'b3\'b5\'c4) to preemption(\'d3\'c5\'cf\'c8\'b9\'ba\'c2\'f2\'a3\'bb\'c7\'bf\'d6\'c6\'ca\'d5\'b9\'ba\'a3\'bb\'c7\'c0\'cf\'c8\'d5\'bc\'d3\'d0\'a3\'bb\'c8\'a1\'b4\'fa). \'a1\'aa> \'d4\'dablock\'c4\'da\'b2\'bf\'ca\'b9\'d3\'c3strong\'d2\'fd\'d3\'c3\'b5\'c4\'ba\'c3\'b4\'a6\'ca\'c7\'d4\'da\'be\'ba\'c8\'fc\'bb\'b7\'be\'b3\'d6\'d0, Damn it, \'ce\'d2\'d5\'e6\'b2\'bb\'d6\'aa\'b5\'c0\'c8\'e7\'ba\'ce\'b3\'c6\'ba\'f4\'a1\'a3\'d5\'e2\'b8\'f6\'d4\'dablock\'cd\'e2\'b2\'bf\'d3\'c3__weak\'d4\'dablock\'c4\'da\'b2\'bf\'d3\'c3__strong\'b5\'c4\'c7\'e9\'bf\'f6\'ca\'c7\'d3\'d0\'b5\'e3\'d0\'a1\'b2\'bb\'ba\'c3\'c0\'ed\'bd\'e2\'b5\'c4\'a3\'ac\'b5\'ab\'ca\'c7\'bc\'c7\'d7\'a1\'d2\'bb\'b5\'e3\'cf\'c8\'a3\'ba\'d4\'dablock\'c4\'da\'b2\'bf\'ca\'b9\'d3\'c3__strong\'b5\'c4\'ca\'b1\'ba\'f2\'a3\'ac\'b2\'a2\'c8\'c3\'cb\'fc\'d6\'b8\'cf\'f2weakSelf, \'bc\'b4__strong __typeof(weakSelf) = weakSelf, \'d5\'e2\'be\'e4\'b4\'fa\'c2\'eb\'d6\'bb\'bb\'e1\'d4\'da\'d4\'cb\'d0\'d0\'ca\'b1\'d3\'b0\'cf\'ec\'b5\'bd\'b6\'d4\'cf\'f3self\'b5\'c4\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'a3\'ac\'b5\'b1\'d6\'b4\'d0\'d0\'cd\'ea\'b1\'cf\'a3\'ac\'be\'cd\'bb\'e1\'d7\'d4\'b6\'af\'b0\'d1\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'cf\'e0\'d3\'a6\'b5\'c4\'bc\'f5\'c8\'a5\'a1\'a3 \
+\'ce\'d2\'bb\'ad\'d2\'bb\'d5\'c5\'cd\'bc\'bd\'e2\'ca\'cd\'d2\'bb\'cf\'c2\'a3\'ba
+\fs32 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f4\fs24 \cf0 \kerning1\expnd0\expndtw0 {{\NeXTGraphic Pasted Graphic 9.tiff \width16660 \height6500
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'ba\'c3\'b0\'c9\'a3\'ac\'d5\'e2\'d6\'d6\'c7\'e9\'bf\'f6\'d4\'da\'b1\'e4\'cc\'ac\'b5\'c4\'c7\'e9\'bf\'f6\'cf\'c2\'ca\'c7\'d3\'d0\'bf\'c9\'c4\'dc\'b7\'a2\'c9\'fa\'b5\'c4\'a3\'ac\'c4\'c7\'c3\'b4\'ce\'d2\'c3\'c7\'c0\'b4\'bf\'b4\'d0\'b4\'d2\'bb\'b8\'f6demo\'a3\'ba\
+\'bd\'a8\'c1\'bd\'b8\'f6\'ca\'d3\'cd\'bc\'bf\'d8\'d6\'c6\'c6\'f7\'a3\'acViewController\'ba\'cdMyViewController, \'cd\'a8\'b9\'fdViewController\'b0\'d1MyViewController present\'b3\'f6\'c0\'b4\'a3\'ac\'c8\'bb\'ba\'f3\'a1\'ad\
+block\'d6\'d0\'d2\'fd\'d3\'c3\'c1\'cbmyViewController, \'b5\'b1myViewController\'d2\'d1\'be\'ad\'cf\'fb\'ca\'a7\'a3\'ac\'d4\'d9\'d6\'b4\'d0\'d0block:
+\fs32 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \CocoaLigature0 //
+\f1\fs22 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf10 //  ViewController.m\cf0 \
+\cf10 //  TestForSutleBlock\cf0 \
+\cf10 //\cf0 \
+\cf10 //  Created by 
+\f2 \'c1\'f5\'cd\'fe\'d5\'f1
+\f1  on 12/25/15.\cf0 \
+\cf10 //  Copyright \'a9 2015 LiuWeiZhen. All rights reserved.\cf0 \
+\cf10 //\cf0 \
+\
+\cf11 #import \cf12 "ViewController.h"\cf11 \
+#import \cf12 "MyViewController.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @interface\cf0  \cf13 ViewController\cf0  ()\
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 copy\cf0 ) \cf11 void\cf0  (^block)();\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 ) \cf13 MyViewController\cf0  *myViewController;\
+\cf11 @end\cf0 \
+\
+\cf11 @implementation\cf0  ViewController\
+\
+- (\cf11 IBAction\cf0 )presentMyController:(\cf11 id\cf0 )sender \{\
+    [\cf11 self\cf0  \cf13 performSelector\cf0 :\cf11 @selector\cf0 (dismissMyController:) \cf13 withObject\cf0 :\cf11 nil\cf0  \cf13 afterDelay\cf0 :5];\
+    [\cf11 self\cf0  \cf13 performSelector\cf0 :\cf11 @selector\cf0 (runBlock) \cf13 withObject\cf0 :\cf11 nil\cf0  \cf13 afterDelay\cf0 :10];\
+    \
+    \cf13 MyViewController\cf0  *myController = [[\cf13 MyViewController\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+    \cf11 self\cf0 .\cf13 myViewController\cf0  = myController;\
+    \cf11 __weak\cf0  \cf13 MyViewController\cf0  *weakController = myController;\
+    \cf11 void\cf0  (^myBlock)() = ^\{\
+        \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , weakController);\
+    \};\
+    \
+    \cf11 self\cf0 .\cf13 block\cf0  = myBlock;\
+    [\cf11 self\cf0  \cf13 presentViewController\cf0 :myController \cf13 animated\cf0 :\cf11 YES\cf0  \cf13 completion\cf0 :\cf11 nil\cf0 ];\
+\}\
+\
+- (\cf11 void\cf0 )runBlock \{\
+    \cf11 if\cf0  (\cf11 self\cf0 .\cf13 block\cf0 ) \{\
+        \cf11 self\cf0 .\cf13 block\cf0 ();\
+    \}\
+\}\
+\
+- (\cf11 void\cf0 )dismissMyController:(\cf11 id\cf0 )sender \{\
+    [\cf11 self\cf0 .\cf13 myViewController\cf0  \cf13 dismissViewControllerAnimated\cf0 :\cf11 YES\cf0  \cf13 completion\cf0 :\cf11 nil\cf0 ];\
+    \cf11 self\cf0 .\cf13 myViewController\cf0  = \cf11 nil\cf0 ;\
+\}\
+\
+\cf11 @end
+\f4\fs24 \cf0 \CocoaLigature1 \
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'b5\'b1\'ce\'d2\'c3\'c7\'b5\'e3\'bb\'f7ViewController\'c9\'cf\'c3\'e6\'b5\'c4\'d2\'bb\'b8\'f6\'b0\'b4\'c5\'a5\'ca\'b1\'a3\'ac\'cf\'c8\'b0\'d1myController\'b5\'af\'b3\'f6\'c0\'b4\'a3\'ac5\'c3\'eb\'d6\'d3\'d6\'ae\'ba\'f3\'a3\'acmyController\'d7\'d4\'b6\'afdismiss, \'b2\'a2\'c7\'d2\'b0\'d1self.myViewController\'d6\'c3\'ce\'aanil, \'d5\'e2\'d1\'f9myController\'be\'cd\'cf\'fb\'ca\'a7\'c1\'cb(\'cb\'fc\'b5\'c4dealloc\'bb\'e1\'b1\'bb\'d6\'b4\'d0\'d0)\'a3\'ac\'c8\'bb\'ba\'f3\'d4\'d9\'b9\'fd5\'c3\'eb\'d6\'d6block\'be\'cd\'bb\'e1\'b1\'bb\'d6\'b4\'d0\'d0\'a3\'ac\'ce\'d2\'c3\'c7\'b4\'f2\'d3\'a1\'b3\'f6\'c0\'b4weakController\'ce\'aanull. \
+\'ba\'c3\'a3\'ac\'ce\'d2\'c3\'c7\'b0\'d1block\'c9\'d4\'ce\'a2\'b8\'c4\'d2\'bb\'cf\'c2\'a3\'ba\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf11 \CocoaLigature0 void\cf0  (^myBlock)() = ^\{\
+    \cf11 __strong\cf0  \cf11 __typeof\cf0 (weakController)strongMyController = weakController;\
+    \cf13 NSLog\cf0 (\cf12 @"block
+\f2 \'d6\'b4\'d0\'d0\'a3\'ac\'d5\'e2\'ca\'b1\'ba\'f2
+\f1 MyViewController: %@"\cf0 , strongMyController);\
+\};
+\f0\fs28 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \'b4\'f2\'d3\'a1\'bd\'e1\'b9\'fb\'ca\'c7\'d2\'bb\'d1\'f9\'b5\'c4\'a3\'acstrongMyController\'d2\'b2\'ca\'c7\'bf\'d5\'a3\'ac\'ba\'c3\'cf\'f1\'cb\'fc\'c3\'bb\'c6\'f0\'d7\'f7\'d3\'c3\'a3\'bf\'ca\'c2\'ca\'b5\'c9\'cf\'ca\'c7\'d4\'da\'d5\'e2\'b8\'f6block\'cc\'e5\'c4\'da\'d3\'c3__strong\'d0\'de\'ca\'ce\'b5\'c4strongMyController\'d6\'bb\'bb\'e1\'d4\'da\'d4\'cb\'d0\'d0\'ca\'b1\'d3\'b0\'cf\'ec\'b6\'d4\'cf\'f3\'b5\'c4\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'a3\'ac\'d2\'b2\'be\'cd\'ca\'c7\'cb\'b5\'a3\'acmyController\'cf\'c8dismiss\'b5\'f4\'b2\'a2\'ce\'aanil\'c1\'cb\'a3\'ac\'d6\'ae\'ba\'f3\'d4\'d9\'d6\'b4\'d0\'d0block, \'b4\'cb\'ca\'b1\'d4\'dablock\'c4\'da\'b5\'c4weakController\'ce\'aanil, \'d2\'b2\'be\'cd\'ca\'c7\'cb\'b5__strong __typeof(weakController)strongMyController = nil; \'cb\'f9\'d2\'d4\'b4\'f2\'d3\'a1\'bd\'e1\'b9\'fb\'d2\'b2\'ca\'c7\'d2\'bb\'d1\'f9\'b5\'c4\'a3\'ac\'ca\'c7\'bf\'d5\'a1\'a3\
+\'ba\'c3\'b0\'c9\'a3\'ac\'ce\'d2\'c3\'c7\'d4\'d9\'c0\'b4\'a3\'ac\'d4\'d9\'d0\'de\'b8\'c4\'d2\'bb\'cf\'c2block:
+\f4\fs24 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf10 \CocoaLigature0 //\cf0 \
+\cf10 //  ViewController.m\cf0 \
+\cf10 //  TestForSutleBlock\cf0 \
+\cf10 //\cf0 \
+\cf10 //  Created by 
+\f2 \'c1\'f5\'cd\'fe\'d5\'f1
+\f1  on 12/25/15.\cf0 \
+\cf10 //  Copyright \'a9 2015 LiuWeiZhen. All rights reserved.\cf0 \
+\cf10 //\cf0 \
+\
+\cf11 #import \cf12 "ViewController.h"\cf11 \
+#import \cf12 "MyViewController.h"\cf11 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 @interface\cf0  \cf13 ViewController\cf0  ()\
+\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 , \cf11 copy\cf0 ) \cf11 void\cf0  (^block)();\
+\cf11 @property\cf0  (\cf11 nonatomic\cf0 ) \cf13 MyViewController\cf0  *myViewController;\
+\cf11 @end\cf0 \
+\
+\cf11 @implementation\cf0  ViewController\
+\
+- (\cf11 IBAction\cf0 )presentMyController:(\cf11 id\cf0 )sender \{\
+    [\cf11 self\cf0  \cf13 performSelector\cf0 :\cf11 @selector\cf0 (dismissMyController:) \cf13 withObject\cf0 :\cf11 nil\cf0  \cf13 afterDelay\cf0 :5];\
+    
+\f3\b [\cf11 self\cf0  \cf13 performSelector\cf0 :\cf11 @selector\cf0 (runBlock) \cf13 withObject\cf0 :\cf11 nil\cf0  \cf13 afterDelay\cf0 :3]; \cf10 // 3
+\f2 \'c3\'eb\'ba\'f3\'c5\'dc
+\f3 block
+\f1\b0 \cf0 \
+    \
+    \cf13 MyViewController\cf0  *myController = [[\cf13 MyViewController\cf0  \cf13 alloc\cf0 ] \cf13 init\cf0 ];\
+    \cf11 self\cf0 .\cf13 myViewController\cf0  = myController;\
+    \cf11 __weak\cf0  \cf13 MyViewController\cf0  *weakController = myController;\
+    \cf11 void\cf0  (^myBlock)() = ^\{\
+        \cf11 __strong\cf0  \cf11 __typeof\cf0 (weakController)strongMyController = weakController;\
+        \cf13 NSLog\cf0 (\cf12 @"block
+\f2 \'d6\'b4\'d0\'d0\'a3\'ac\'d5\'e2\'ca\'b1\'ba\'f2
+\f1 MyViewController: %@"\cf0 , strongMyController); \cf10 // <MyViewController: 0x7fb3686091b0>\cf0 \
+        \
+         
+\f3\b \cf10 // 
+\f2 \'bf\'aa\'d2\'bb\'b8\'f6\'cf\'df\'b3\'cc\'a3\'ac
+\f3 10
+\f2 \'c3\'eb\'ba\'f3\'d6\'b4\'d0\'d0
+\f3  
+\f2 \'a3\'db
+\f3 OK
+\f2 \'a3\'ac\'d4\'da\'b5\'c8\'b4\'fd\'b9\'fd\'b3\'cc\'d6\'d0\'a3\'ac\'d4\'d9\'b9\'fd\'d4\'bc
+\f3 2
+\f2 \'c3\'eb
+\f3 dismissMyController
+\f2 \'d6\'b4\'d0\'d0\'a3\'dd
+\f3 \cf0 \
+         \cf13 dispatch_after\cf0 (\cf13 dispatch_time\cf0 (\cf11 DISPATCH_TIME_NOW\cf0 , (\cf13 int64_t\cf0 )(10 * \cf11 NSEC_PER_SEC\cf0 )), \cf13 dispatch_get_global_queue\cf0 (\cf11 DISPATCH_QUEUE_PRIORITY_DEFAULT\cf0 , 0), ^\{\
+             [\cf13 NSThread\cf0  \cf13 sleepForTimeInterval\cf0 :10];\
+             \cf13 NSLog\cf0 (\cf12 @"%@"\cf0 , strongMyController); \cf10 // <MyViewController: 0x7fb3686091b0> 
+\f2 \'d5\'e2\'b8\'f6\'cf\'df\'b3\'cc\'d6\'b4\'d0\'d0\'cd\'ea\'ba\'f3\'a3\'ac
+\f3 myController
+\f2 \'b2\'c5\'d5\'e6\'d5\'fd\'b1\'bb\'cf\'fa\'bb\'d9\'a3\'ac\'cb\'fc\'b5\'c4
+\f3 dealloc
+\f2 \'b7\'bd\'b7\'a8\'b2\'c5\'b1\'bb\'b5\'f7\'d3\'c3
+\f3 \cf0 \
+         \});
+\f1\b0 \
+    \};\
+    \
+    \cf11 self\cf0 .\cf13 block\cf0  = myBlock;\
+    [\cf11 self\cf0  \cf13 presentViewController\cf0 :myController \cf13 animated\cf0 :\cf11 YES\cf0  \cf13 completion\cf0 :\cf11 nil\cf0 ];\
+\}\
+\
+- (\cf11 void\cf0 )runBlock \{\
+    \cf11 if\cf0  (\cf11 self\cf0 .\cf13 block\cf0 ) \{\
+        \cf11 self\cf0 .\cf13 block\cf0 ();\
+    \}\
+\}\
+\
+- (\cf11 void\cf0 )dismissMyController:(\cf11 id\cf0 )sender \{\
+    [\cf11 self\cf0 .\cf13 myViewController\cf0  \cf13 dismissViewControllerAnimated\cf0 :\cf11 YES\cf0  \cf13 completion\cf0 :\cf11 nil\cf0 ];\
+    \cf11 self\cf0 .\cf13 myViewController\cf0  = \cf11 nil\cf0 ;\
+\}\
+\
+\cf11 @end\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f0\fs28 \cf0 \'ca\'d7\'cf\'c8\'a3\'ac\'b5\'e3\'bb\'f7\'b0\'b4\'c5\'a5\'b0\'d1myController present\'b3\'f6\'c0\'b4\'a3\'ac\'b9\'fd\'c1\'cb3\'c3\'eb\'d6\'d3\'d6\'b4\'d0\'d0block, \'d4\'d9\'d6\'b4\'d0\'d0block\'ca\'b1\'cf\'c8\'d3\'c3__strong\'d4\'f6\'bc\'d3\'c1\'cbmyController\'b6\'d4\'cf\'f3\'b5\'c4\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'a3\'ac\'c8\'bb\'ba\'f3\'d4\'d9\'b9\'fd2\'c3\'eb\'d6\'d3\'d6\'b4\'d0\'d0dismissMyController:\'d5\'e2\'ca\'b1\'ba\'f2\'ce\'d2\'c3\'c7\'b0\'d1myController dismiss\'b2\'a2\'b0\'d1\'d6\'b8\'d5\'ebmyViewController\'c9\'e8\'d6\'c3\'ce\'aanil, \'b5\'ab\'ca\'c7\'d3\'c9\'d3\'da__strong\'b5\'c4\'d4\'ad\'d2\'f2\'a3\'acmyController\'b6\'d4\'cf\'f3\'bb\'b9\'ca\'c7\'b4\'e6\'d4\'da\'b5\'c4\'a3\'ac\'cb\'fc\'b5\'c4dealloc\'b2\'a2\'c3\'bb\'d3\'d0\'b4\'f2\'d3\'a1\'a3\'ac\'d4\'d9\'b9\'fd\'d2\'bb\'b6\'ce\'ca\'b1\'bc\'e4(\'d2\'b2\'be\'cd\'ca\'c7\'c9\'e8\'d6\'c3\'b5\'c410\'c3\'eb\'d6\'d3\'b5\'bd\'c1\'cb)\'a3\'ac\'b4\'f2\'d3\'a1strongMyController, \'d5\'e2\'ca\'b1\'ba\'f2block\'d6\'b4\'d0\'d0\'cd\'ea\'b1\'cf\'a3\'ac\'cb\'fc\'d4\'ad\'c0\'b4\'d4\'f6\'bc\'d3\'b5\'c4\'d2\'fd\'d3\'c3\'bc\'c6\'ca\'fd\'d7\'d4\'b6\'af\'bc\'f51, \'d3\'da\'ca\'c7myController\'d5\'e6\'d5\'fd\'cf\'fa\'bb\'d9(\'c6\'e4dealloc\'b7\'bd\'b7\'a8\'d6\'b4\'d0\'d0)
+\f4\fs24 \CocoaLigature1 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardeftab720\pardirnatural\partightenfactor0
+\cf0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b\fs22 \cf0 \CocoaLigature0 So, You should, Example:
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 ) weakSelf = \cf11 self\cf0 ;\
+[\cf11 self\cf0  executeBlock:^(NSData *data, NSError *error) \{\
+    [weakSelf doSomethingWithData:data];\
+\}];\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 Not:
+\f1\b0 \
+[\cf11 self\cf0  executeBlock:^(NSData *data, NSError *error) \{\
+    [\cf11 self\cf0  doSomethingWithData:data];\
+\}];\
+\
+
+\f3\b You should, Example with multiple statements:
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 )weakSelf = \cf11 self\cf0 ;\
+[\cf11 self\cf0  executeBlock:^(NSData *data, NSError *error) \{\
+    \cf11 __strong\cf0  \cf11 __typeof\cf0 (weakSelf) strongSelf = weakSelf;\
+    \cf11 if\cf0  (strongSelf) \{\
+        [strongSelf doSomethingWithData:data];\
+        [strongSelf doSomethingWithData:data];\
+    \}\
+\}];\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 Not:
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 )weakSelf = \cf11 self\cf0 ;\
+[\cf11 self\cf0  executeBlock:^(NSData *data, NSError *error) \{\
+    [weakSelf doSomethingWithData:data];\
+    [weakSelf doSomethingWithData:data];\
+\}];\
+\
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+
+\f3\b \cf0 You should add these two lines as snippets to Xcode and always use them exactly like this:
+\f1\b0 \
+\pard\tx483\pardeftab483\pardirnatural\partightenfactor0
+\cf11 __weak\cf0  \cf11 __typeof\cf0 (\cf11 self\cf0 )weakSelf = \cf11 self\cf0 ;\
+\cf11 __strong\cf0  \cf11 __typeof\cf0 (weakSelf)strongSelf = weakSelf;\
+}
